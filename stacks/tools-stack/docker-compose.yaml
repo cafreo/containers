@@ -1,0 +1,79 @@
+services:
+
+# FRESHRSS
+  freshrss:
+    image: linuxserver/freshrss:${VERSION_FRESHRSS}
+    container_name: freshrss
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      CRON_MIN: 5, 25, 45
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/freshrss/config:/config
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_FRESHRSS}:80
+
+# IT-TOOLS
+  it-tools:
+    image: corentinth/it-tools:${VERSION_IT_TOOLS}
+    container_name: it-tools
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_IT_TOOLS}:80
+
+# WALLOS
+  wallos:
+    image: bellamy/wallos:${VERSION_WALLOS}
+    container_name: wallos
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/wallos/db:/var/www/html/db
+      - /home/docker/wallos/logos:/var/www/html/images/uploads/logos
+    networks:
+      - net
+    ports:
+      - ${PORT1_WALLOS}:80/tcp
+
+# SQLITEBROWSER
+  sqlitebrowser:
+    image: linuxserver/sqlitebrowser:${VERSION_SQLITEBROWSER}
+    container_name: sqlitebrowser
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/sqlitebrowser/config:/config
+      - /home/docker/navidrome/data:/data
+    networks:
+      - net
+    ports:
+      - ${PORT1_SQLITEBROWSER}:3000
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

@@ -1,0 +1,289 @@
+services:
+
+# GLUETUN
+  gluetun:
+    image: qmcgaw/gluetun:${VERSION_GLUETUN}
+    container_name: gluetun
+    restart: always
+    hostname: gluetunnet
+    # line above must be uncommented to allow external containers to connect.
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      FIREWALL_OUTBOUND_SUBNETS: ${ENV_FIREWALL_OUTBOUND_SUBNETS}
+      VPN_SERVICE_PROVIDER: ${ENV_VPN_SERVICE_PROVIDER}
+      VPN_TYPE: ${ENV_VPN_TYPE}
+      OWNED_ONLY: yes
+      WIREGUARD_PRIVATE_KEY: ${ENV_WIREGUARD_PRIVATE_KEY}
+      WIREGUARD_ADDRESSES: ${ENV_WIREGUARD_ADDRESSES}
+      SERVER_HOSTNAMES: ${ENV_SERVER_HOSTNAMES}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/gluetun:/gluetun
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - net
+    ports:
+      - ${PORT1_GLUETUNNET}:8000 
+      - ${PORT1_QBITTORRENT}:8080
+      - ${PORT2_QBITTORRENT}:6881
+      - ${PORT2_QBITTORRENT}:6881/udp
+      - ${PORT1_SABNZBD}:8081
+      - ${PORT1_SLSKD}:5030
+      - ${PORT2_SLSKD}:5031
+      - ${PORT3_SLSKD}:50300
+      - ${PORT1_PYLOAD}:8001
+      - ${PORT1_JACKETT}:9117
+      - ${PORT1_FLARESOLVERR}:8191
+      - ${PORT1_LIDARR}:8686
+      - ${PORT1_RADARR}:7878
+      - ${PORT1_SONARR}:8989
+
+# QBITTORRENT
+  qbittorrent:
+    image: linuxserver/qbittorrent:${VERSION_QBITTORRENT}
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/qbittorrent/config:/config
+      - /home/docker/qbittorrent/webui:/webui
+      - ${VOL1}/Library/Torrents:/downloads
+
+# SABNZBD
+  sabnzbd:
+    image: linuxserver/sabnzbd:${VERSION_SABNZBD}
+    container_name: sabnzbd
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/sabnzbd/config:/config
+      - ${VOL1}/Library/Usenet:/downloads
+      - ${VOL1}/Library/Usenet/incomplete:/incomplete-downloads
+      - ${VOL1}/Backups/Docker/SABnzbd:/backups
+
+# SLSKD
+  slskd:
+    image: slskd/slskd:${VERSION_SLSKD}
+    container_name: slskd
+    restart: unless-stopped
+    user: 1000:100
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "wget -q -O- ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+      SLSKD_REMOTE_CONFIGURATION: true
+      SLSKD_UMASK: 002
+      SLSKD_FILE_PERMISSION_MODE: 666
+      SLSKD_DOWNLOADS_DIR: /downloads
+      SLSKD_INCOMPLETE_DIR: /incomplete
+      SLSKD_SHARED_DIR: /home/app/shares/
+      SLSKD_SHARE_FILTER: .ini$,Thumbs.db$,.DS_Store$,.lrc$
+      SLSKD_HTTP_PORT: 5030
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/slskd/app:/app
+      - ${VOL1}/Library/Soulseek/downloads:/downloads
+      - ${VOL1}/Library/Soulseek/incomplete:/incomplete
+      - ${VOL1}/Library/Media/Music:/home/app/shares/Music:ro
+      #- "${VOL1}/Library/Media/Movies:/home/app/shares/Movies:ro"
+      #- "${VOL1}/Library/Media/TVShows:/home/app/shares/TVShows:ro"
+
+# PYLOAD
+  pyload-ng:
+    image: linuxserver/pyload-ng:${VERSION_PYLOAD}
+    container_name: pyload
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/pyload/config:/config
+      - ${VOL1}/Downloads:/downloads
+    
+# JACKETT
+  jackett:
+    image: linuxserver/jackett:${VERSION_JACKETT}
+    container_name: jackett
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      - PUID=1001
+      - PGID=1001
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/jackett/config:/config
+
+# FLARESOLVERR
+  flaresolverr:
+    image: flaresolverr/flaresolverr:${VERSION_FLARESOLVERR}
+    container_name: flaresolverr
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      LOG_LEVEL: info
+      LOG_HTML: false
+      CAPTCHA_SOLVER: none
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+
+# LIDARR
+  lidarr:
+    image: linuxserver/lidarr:${VERSION_LIDARR}
+    container_name: lidarr
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+      DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/lidarr/config:/config
+      - ${VOL1}/Library:/data
+      - ${VOL1}/.Trash-1000/files/Lidarr:/trash
+      - ${VOL1}/Backups/Docker/Lidarr:/backups
+
+# RADARR
+  radarr:
+    image: linuxserver/radarr:${VERSION_RADARR}
+    container_name: radarr
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env  
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/radarr/config:/config
+      - ${VOL1}/Library:/data
+      - ${VOL1}/.Trash-1000/files/Radarr:/trash
+      - ${VOL1}/Backups/Docker/Radarr:/backups
+
+# SONARR
+  sonarr:
+    image: linuxserver/sonarr:${VERSION_SONARR}
+    container_name: sonarr
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/sonarr/config:/config
+      - ${VOL1}/Library:/data
+      - ${VOL1}/.Trash-1000/files/Sonarr:/trash
+      - ${VOL1}/Backups/Docker/Sonarr:/backups
+
+# SOULARR
+  soularr:
+    image: mrusse08/soularr:${VERSION_SOULARR}
+    container_name: soularr
+    restart: unless-stopped
+    user: 1000:100
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun 
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+      SCRIPT_INTERVAL: 14400
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/soularr:/data
+      - ${VOL1}/Library/Soulseek/downloads:/downloads
+     
+
+networks:
+  net:
+    driver: bridge

@@ -1,0 +1,89 @@
+services:
+
+# IMMICH
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:${VERSION_IMMICH}
+    container_name: immich
+    restart: unless-stopped
+    # extends:
+    #   file: hwaccel.transcoding.yml
+    #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
+    depends_on:
+      - redis
+      - database
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${VOL1}/Pictures/Immich:/usr/src/app/upload
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_IMMICH}:2283
+    dns:
+      - ${DNS1_IMMICH}
+      - ${DNS2_IMMICH}
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${VERSION_IMMICH}
+    container_name: immich-ml
+    restart: unless-stopped
+    healthcheck:
+      disable: false
+    # For hardware acceleration, add one of -[armnn, cuda, openvino] to the image tag.
+    # Example tag: ${IMMICH_VERSION:-release}-cuda
+    # extends: # uncomment this section for hardware acceleration - see https://immich.app/docs/features/ml-hardware-acceleration
+    #   file: hwaccel.ml.yml
+    #   service: cpu # set to one of [armnn, cuda, openvino, openvino-wsl] for accelerated inference - use the `-wsl` version for WSL2 where applicable
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/immich/cache:/cache
+    networks:
+      - net
+
+# REDIS
+  redis:
+    image: docker.io/valkey/valkey:${VERSION_REDIS}
+    container_name: immich-rs
+    restart: unless-stopped
+    healthcheck:
+      test: redis-cli ping || exit 1
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - net
+
+# POSTGRESQL
+  database:
+    image: ghcr.io/immich-app/postgres:${VERSION_POSTGRESQL}
+    container_name: immich-pg
+    restart: unless-stopped
+    shm_size: 128mb
+    env_file:
+      - stack.env
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+      # Uncomment the DB_STORAGE_TYPE: 'HDD' var if your database isn't stored on SSDs
+      # DB_STORAGE_TYPE: 'HDD'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/immich/postgres:/var/lib/postgresql/data
+    networks:
+      - net
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true
+

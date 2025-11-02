@@ -1,0 +1,58 @@
+services:
+
+# MOZILLA SYNCSERVER
+  mozilla-syncserver:
+    image: mozilla/syncserver:${VERSION_SYNCSERVER}
+    container_name: mz-syncserver
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      SYNCSERVER_PUBLIC_URL: ${ENV_SYNCSERVER_PUBLIC_URL}
+      SYNCSERVER_SECRET: ${ENV_SYNCSERVER_SECRET}
+      SYNCSERVER_FORCE_WSGI_ENVIRON: true
+      SYNCSERVER_SQLURI: sqlite:////data/syncserver.db
+      SYNCSERVER_BATCH_UPLOAD_ENABLED: true
+      SYNCSERVER_DEBUG_ENABLED: true
+      PORT: 5000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/mz-syncserver:/data
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_SYNCSERVER}:5000
+
+# SYNCTHING
+  syncthing:
+    image: linuxserver/syncthing:${VERSION_SYNCTHING}
+    container_name: syncthing
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/syncthing/config:/config
+      - ${VOL1}${VOL2}:/data/Gamesaves
+      - ${VOL1}${VOL3}:/data/Signal
+    networks:
+      - net
+    ports:
+      - ${PORT1_SYNCTHING}:8384
+      - ${PORT2_SYNCTHING}:22000/tcp
+      - ${PORT2_SYNCTHING}:22000/udp
+      - ${PORT3_SYNCTHING}:21027/udp
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

@@ -1,0 +1,145 @@
+services:
+
+#JELLYFIN
+  jellyfin:
+    image: linuxserver/jellyfin:${VERSION_JELLYFIN}
+    container_name: jellyfin
+    restart: unless-stopped
+    group_add:
+      - "105"
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+      DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/jellyfin:/config
+      - ${VOL1}/Library/Media/TVShows/Owned:/data/tvshows1:ro
+      - ${VOL1}/Library/Media/TVShows/Rented:/data/tvshows2:ro
+      - ${VOL1}/Library/Media/TVShows/Imported:/data/tvshows3:ro
+      - ${VOL1}/Library/Media/TVShows/Other:/data/tvshows4:ro
+      - ${VOL1}/Library/Media/Movies/Owned:/data/movies1:ro
+      - ${VOL1}/Library/Media/Movies/Rented:/data/movies2:ro
+      - ${VOL1}/Library/Media/Movies/Imported:/data/movies3:ro
+      - ${VOL1}/Library/Media/Movies/Other:/data/movies4:ro
+      - ${VOL1}/Library/Media/Documentaries/Rented:/data/documentaries2:ro
+      - ${VOL1}/Library/Media/Documentaries/Imported:/data/documentaries3:ro
+      - ${VOL1}/Library/Media/Documentaries/Other:/data/documentaries4:ro
+      - ${VOL1}/Library/Media/IPTV/config:/data/iptv/config:ro
+      - ${VOL1}/Library/Media/IPTV/Recordings:/config/data/data/livetv/recordings:rw
+      #- ${VOL1}/Library/Media/Music:/data/music:ro
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_JELLYFIN}:8096
+      #- ${PORT2_JELLYFIN}:8920 #optional
+      #- ${PORT3_JELLYFIN}:7359/udp #optional
+      #- ${PORT4_JELLYFIN}:1900/udp #optional
+
+# ERSATZTV
+  ersatztv:
+    image: jasongdove/ersatztv:${VERSION_ERSATZTV}
+    container_name: ersatztv
+    restart: unless-stopped
+    group_add:
+      - "105"
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/ersatztv/config:/config
+      - ${VOL1}/Library/Media/TVShows/Owned:/data/tvshows1:ro
+      - ${VOL1}/Library/Media/TVShows/Rented:/data/tvshows2:ro
+      - ${VOL1}/Library/Media/TVShows/Imported:/data/tvshows3:ro
+      - ${VOL1}/Library/Media/TVShows/Other:/data/tvshows4:ro
+      - ${VOL1}/Library/Media/Movies/Owned:/data/movies1:ro
+      - ${VOL1}/Library/Media/Movies/Rented:/data/movies2:ro
+      - ${VOL1}/Library/Media/Movies/Imported:/data/movies3:ro
+      - ${VOL1}/Library/Media/Movies/Other:/data/movies4:ro
+      - ${VOL1}/Library/Media/Documentaries:/data/documentaries:ro
+      - ${VOL1}/Library/Media/IPTV/Filler:/data/filler:ro
+      - type: tmpfs
+        target: /transcode
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    networks:
+      - net
+    ports:
+      - ${PORT1_ERSATZTV}:8409
+
+# TV-EPG
+  tv-epg:
+    image: cyberpoison/tv-epg:${VERSION_TV_EPG}
+    container_name: epg
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      - 'WEBSITES=hd-plus.de,sky.de,web.magentatv.de,pluto.tv'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${VOL1}/Library/Media/IPTV/config:/epg/www
+    networks:
+      - net
+    ports:
+      - ${PORT1_TV_EPG}:3000
+
+# JELLYSEERR
+  jellyseerr:
+    image: fallenbagel/jellyseerr:${VERSION_JELLYSEERR}
+    container_name: jellyseerr
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      LOG_LEVEL: debug
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/jellyseerr/data:/app/config
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_JELLYSEERR}:5055
+     
+# UNMANIC
+  unmanic:
+    image: josh5/unmanic:${VERSION_UNMANIC}
+    container_name: unmanic
+    restart: unless-stopped
+
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/unmanic/config:/config
+      - ${VOL1}/Library/Media/Movies:/library/movies
+      - ${VOL1}/Library/Media/TVShows:/library/tvshows
+      - ${VOL1}/.tmp/unmanic:/tmp/unmanic
+    devices:
+      - /dev/dri:/dev/dri
+    networks:
+      - net
+    ports:
+      - ${PORT1_UNMANIC}:8888
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true
+

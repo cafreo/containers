@@ -1,0 +1,103 @@
+services:
+
+# NAVIDROME
+  navidrome:
+    image: deluan/navidrome:${VERSION_NAVIDROME}
+    container_name: navidrome
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      ND_SCANSCHEDULE: 20m
+      ND_LOGLEVEL: debug  
+      ND_BASEURL: 
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_AUTOIMPORTPLAYLISTS: true
+      ND_PLAYLISTSPATH: Playlists/Import
+      ND_ENABLECOVERANIMATION: false
+      ND_RECENTLYADDEDBYMODTIME: true
+      ND_ENABLEDOWNLOADS: true
+      ND_SESSIONTIMEOUT: 72h
+      ND_SCANNER_EXTRACTOR: ffmpeg
+      ND_ENABLEMEDIAFILECOVERART: true
+      ND_COVERARTPRIORITY: embedded, folder.*, cover.*, front.*, external
+      ND_COVERJPEGQUALITY: 75
+      ND_ENABLEREPLAYGAIN: true
+      ND_JUKEBOX_ENABLED: true
+      #ND_SPOTIFY_ID: ${ENV_SPOTIFY_ID}
+      #ND_SPOTIFY_SECRET: ${ENV_SPOTIFY_SECRET}
+      ND_LASTFM_APIKEY: ${ENV_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ENV_LASTFM_SECRET}
+      ND_LASTFM_ENABLED: true
+      ND_UIWELCOMEMESSAGE: Pass the Aux, Nigga!
+      ND_ENABLEINSIGHTSCOLLECTOR: false
+      ND_BACKUP_PATH: /backups
+      ND_BACKUP_SCHEDULE: 0 2 * * 1,3,5
+      ND_BACKUP_COUNT: 12
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/navidrome/data:/data
+      - ${VOL1}/Backups/Docker/Navidrome:/backups
+      - ${VOL1}/Library/Media/Music:/music:ro
+      - ${VOL1}/Library/Media/Audiobooks:/audiobooks:ro
+      - ${VOL1}/Library/Media/Podcasts:/podcasts:ro
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_NAVIDROME}:4533
+
+# BEETS
+  beets:
+    image: linuxserver/beets:${VERSION_BEETS}
+    container_name: beets
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/beets/config:/config
+      - /home/docker/beets/downloads:/downloads
+      - ${VOL1}/Library/Media/Music:/music
+    networks:
+      - net
+    ports:
+      - ${PORT1_BEETS}:8337
+
+# AUDIOBOOKSHELF
+  audiobookshelf:
+    image: advplyr/audiobookshelf:${VERSION_AUDIOBOOKSHELF}
+    container_name: audiobookshelf
+    restart: unless-stopped
+    user: 1000:100
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1000
+      PGID: 100
+      AUDIOBOOKSHELF_UID: 1000
+      AUDIOBOOKSHELF_GID: 100
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/audiobookshelf/config:/config
+      - /home/docker/audiobookshelf/metadata:/metadata
+      - ${VOL1}/Library/Media/Podcasts:/podcasts
+      - ${VOL1}/Library/Media/Audiobooks:/audiobooks1
+      - ${VOL1}/Library/Torrents/Audiobooks:/audiobooks2
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_AUDIOBOOKSHELF}:80
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

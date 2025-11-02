@@ -1,0 +1,59 @@
+services:
+
+# WIREGUARD
+  wireguard:
+    image: linuxserver/wireguard:${VERSION_WIREGUARD}
+    container_name: wireguard
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE #optional
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      SERVERURL: ${ENV_SERVERURL}
+      SERVERPORT: 51820
+      PEERS: ${ENV_PEERS}
+      PEERDNS: ${ENV_PEERDNS}
+      INTERNAL_SUBNET: ${ENV_INTERNAL_SUBNET}
+      ALLOWEDIPS: ${ENV_ALLOWEDIPS}
+      PERSISTENTKEEPALIVE_PEERS:  #optional
+      LOG_CONFS: true #optional
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/wireguard/config:/config
+      - /lib/modules:/lib/modules #optional
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_WIREGUARD}:51820/udp 
+
+# DYNDNS
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:${VERSION_DYNDNS}
+    container_name: dyndns_vpn
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      API_KEY: ${ENV_API_KEY}
+      ZONE: ${ENV_ZONE}
+      SUBDOMAIN: ${ENV_SUBDOMAIN}
+      PROXIED: false
+    networks:
+      - net
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true
