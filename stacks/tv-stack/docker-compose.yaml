@@ -108,32 +108,6 @@ services:
       - caddy
     ports:
       - ${PORT1_JELLYSEERR}:5055
-     
-# UNMANIC
-  unmanic:
-    image: josh5/unmanic:${VERSION_UNMANIC}
-    container_name: unmanic
-    restart: unless-stopped
-
-    healthcheck:
-      test: "curl ifconfig.me  || exit 1"
-      interval: 1m
-      timeout: 10s
-    environment:
-      PUID: 1000
-      PGID: 100
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /home/docker/unmanic/config:/config
-      - ${VOL1}/Library/Media/Movies:/library/movies
-      - ${VOL1}/Library/Media/TVShows:/library/tvshows
-      - ${VOL1}/.tmp/unmanic:/tmp/unmanic
-    devices:
-      - /dev/dri:/dev/dri
-    networks:
-      - net
-    ports:
-      - ${PORT1_UNMANIC}:8888
 
 
 networks:
