@@ -15,7 +15,7 @@ services:
       - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${VOL1}/Pictures/Immich:/usr/src/app/upload
+      - ${VOL1}/Media/Pictures/Immich:/usr/src/app/upload
     networks:
       - net
       - caddy
