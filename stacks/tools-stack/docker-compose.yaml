@@ -75,11 +75,12 @@ services:
     image: josh5/unmanic:${VERSION_UNMANIC}
     container_name: unmanic
     restart: unless-stopped
-
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
+    env_file:
+      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -98,6 +99,26 @@ services:
     ports:
       - ${PORT1_UNMANIC}:8888
 
+  kiwix:
+      image: ghcr.io/kiwix/kiwix-serve:${VERSION_KIWIX}
+      container_name: kiwix
+      restart: unless-stopped
+      command:
+        - '*.zim'
+      env_file:
+      - stack.env
+      environment:
+        PUID: 1001
+        PGID: 1001
+        DOWNLOAD: ${ENV_DOWNLOAD}
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /srv/dev-disk-by-uuid-62255bc5-8961-4ebf-8244-315b6b652636/POTRO-NAS-A/Documents/Wiki:/data
+      networks:
+        - net
+      ports:
+        - ${PORT1_KIWIX}:8080
+      
 
 networks:
   net:
