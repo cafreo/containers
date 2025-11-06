@@ -189,6 +189,7 @@ services:
       CAPTCHA_SOLVER: none
     volumes:
         - /etc/localtime:/etc/localtime:ro
+        - /home/docker/flaresolverr/config:/config
 
 # LIDARR
   lidarr:

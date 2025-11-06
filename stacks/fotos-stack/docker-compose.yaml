@@ -15,7 +15,7 @@ services:
       - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${VOL1}/Media/Pictures/Immich:/usr/src/app/upload
+      - ${VOL1}/Media/Pictures/Immich:/data
     networks:
       - net
       - caddy
@@ -55,6 +55,7 @@ services:
       - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /home/docker/immich/redis/data:/data
     networks:
       - net
 
@@ -86,4 +87,3 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
-
