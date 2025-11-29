@@ -113,7 +113,7 @@ services:
         DOWNLOAD: ${ENV_DOWNLOAD}
       volumes:
         - /etc/localtime:/etc/localtime:ro
-        - /srv/dev-disk-by-uuid-62255bc5-8961-4ebf-8244-315b6b652636/POTRO-NAS-A/Documents/Wiki:/data
+        - ${VOL1}/Documents/Wiki:/data
       networks:
         - net
       ports:
@@ -126,3 +126,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

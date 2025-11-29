@@ -40,8 +40,8 @@ services:
       - /home/docker/navidrome/data:/data
       - ${VOL1}/Backups/Docker/Navidrome:/backups
       - ${VOL1}/Library/Media/Music:/music:ro
-      - ${VOL1}/Library/Media/Audiobooks:/audiobooks:ro
-      - ${VOL1}/Library/Media/Podcasts:/podcasts:ro
+      #- ${VOL1}/Library/Media/Audiobooks:/audiobooks:ro
+      #- ${VOL1}/Library/Media/Podcasts:/podcasts:ro
     networks:
       - net
       - caddy

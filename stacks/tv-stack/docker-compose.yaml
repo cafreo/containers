@@ -61,7 +61,9 @@ services:
       - ${VOL1}/Library/Media/Movies/Rented:/data/movies2:ro
       - ${VOL1}/Library/Media/Movies/Imported:/data/movies3:ro
       - ${VOL1}/Library/Media/Movies/Other:/data/movies4:ro
-      - ${VOL1}/Library/Media/Documentaries:/data/documentaries:ro
+      - ${VOL1}/Library/Media/Documentaries/Rented:/data/documentaries2:ro
+      - ${VOL1}/Library/Media/Documentaries/Imported:/data/documentaries3:ro
+      - ${VOL1}/Library/Media/Documentaries/Other:/data/documentaries4:ro
       - ${VOL1}/Library/Media/IPTV/Filler:/data/filler:ro
       - type: tmpfs
         target: /transcode
@@ -116,4 +118,3 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
-
