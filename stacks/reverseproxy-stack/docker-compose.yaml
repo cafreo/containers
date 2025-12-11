@@ -1,0 +1,49 @@
+services:
+
+# CADDY
+  caddy:
+    image: slothcroissant/caddy-cloudflaredns:${VERSION_CADDY}
+    container_name: caddy
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /home/docker/caddy/site:/srv
+      - /home/docker/caddy/data:/data
+      - /home/docker/caddy/config:/config
+      - /home/docker/caddy/ssl:/ssl
+    networks:
+      - net
+    ports:
+      - ${PORT1_CADDY}:80
+      - ${PORT2_CADDY}:443
+      - ${PORT2_CADDY}:443/udp
+    dns:
+      - ${DNS1_CADDY}
+      - ${DNS2_CADDY}
+
+# DYNDNS
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    container_name: dyndns
+    restart: always
+    env_file:
+      - stack.env
+    environment:
+      PUID: 1001
+      PGID: 1001
+      API_KEY: ${ENV_API_KEY}
+      ZONE: ${ENV_ZONE}
+      SUBDOMAIN: ${ENV_SUBDOMAIN}
+      PROXIED: true
+    networks:
+      - net
+
+
+networks:
+  net:
+    driver: bridge

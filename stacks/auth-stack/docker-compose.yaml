@@ -1,0 +1,126 @@
+services:
+
+# AUTHENTIK
+  server:
+    image: authentik/server:${VERSION_AUTHENTIK}
+    container_name: authentik
+    restart: unless-stopped
+    command: server
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - stack.env
+    environment:
+      AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
+      AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
+      AUTHENTIK_POSTGRESQL__NAME: ${ENV_POSTGRESQL_DB}
+      AUTHENTIK_POSTGRESQL__USER: ${ENV_POSTGRESQL_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${ENV_POSTGRESQL_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${ENV_AUTHENTIK_SECRET_KEY} 
+      AUTHENTIK_ERROR_REPORTING__ENABLED: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/authentik/media:/media
+      - /home/docker/authentik/templates:/templates
+    networks:
+      - caddy
+      - net 
+    ports:
+      - "${PORT1_AUTHENTIK}:9000"
+      - "${PORT2_AUTHENTIK}:9443"
+          
+  worker:
+    image: authentik/server:${VERSION_AUTHENTIK}
+    container_name: authentik-wk
+    command: worker
+    restart: unless-stopped
+    depends_on:
+      - postgresql
+      - redis
+    env_file:
+      - stack.env
+    environment:
+      AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
+      AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
+      AUTHENTIK_POSTGRESQL__NAME: ${ENV_POSTGRESQL_DB}
+      AUTHENTIK_POSTGRESQL__USER: ${ENV_POSTGRESQL_USER}    
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${ENV_POSTGRESQL_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${ENV_AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: true
+    user: root
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/docker/authentik/media:/media
+      - /home/docker/authentik/certs:/certs
+      - /home/docker/authentik/templates:/templates
+    networks:
+      - dockerproxy
+      - net
+
+# POSTGRESQL
+  postgresql:
+    image: postgres:${VERSION_POSTGRESQL}
+    container_name: authentik-pg
+    restart: unless-stopped
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      test:
+      - CMD-SHELL
+      - pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
+      timeout: 5s
+    env_file:
+      - stack.env
+    environment:
+      POSTGRES_DB: ${ENV_POSTGRESQL_DB}
+      POSTGRES_PASSWORD: ${ENV_POSTGRESQL_PASSWORD}
+      POSTGRES_USER: ${ENV_POSTGRESQL_USER}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/authentik/database:/var/lib/postgresql/data
+    networks:
+      - net
+
+# REDIS   
+  redis:
+    image: redis:${VERSION_REDIS}
+    container_name: authentik-rs
+    restart: unless-stopped
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      test:
+      - CMD-SHELL
+      - redis-cli ping | grep PONG
+      timeout: 3s
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/authentik/redis:/data
+    networks:
+      - net
+    
+
+networks:
+  net:
+    driver: bridge
+  dockerproxy:
+    name: admin-stack_net
+    external: true
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

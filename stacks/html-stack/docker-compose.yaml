@@ -1,0 +1,26 @@
+services:
+
+# NGINX
+  nginx:
+    image: nginx:${VERSION_NGINX}
+    container_name: startpage
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/startpage/:/usr/share/nginx/html:ro
+    ports:
+      - ${PORT1_NGINX}:80
+      #- ${PORT1_NGINX}:443
+    networks:
+      - net
+      - caddy
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

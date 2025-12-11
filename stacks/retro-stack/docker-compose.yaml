@@ -1,0 +1,69 @@
+services:
+
+# ROMM
+  romm:
+    image: rommapp/romm:${VERSION_ROMM}
+    container_name: romm
+    restart: unless-stopped
+    depends_on:
+      romm-db:
+        condition: service_healthy
+        restart: true
+    env_file:
+      - stack.env
+    environment:
+      DB_HOST: ${ENV_DB_HOST}
+      DB_NAME: ${ENV_DB_NAME}
+      DB_USER: ${ENV_DB_USER}
+      DB_PASSWD: ${ENV_DB_PASSWD}
+      ROMM_AUTH_SECRET_KEY: ${ENV_ROMM_AUTH_SECRET_KEY}
+      SCREENSCRAPER_USER: 
+      SCREENSCRAPER_PASSWORD: 
+      RETROACHIEVEMENTS_API_KEY: ${ENV_RETROACHIEVEMTNS_API_KEY}
+      STEAMGRIDDB_API_KEY: 
+      HASHEOUS_API_ENABLED: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/romm/config:/romm/config
+      - /home/docker/romm/resources:/romm/resources
+      - /home/docker/romm/redis_data:/redis-data
+      - /home/docker/romm/assets:/romm/assets
+      - ${VOL1}/Gayming/Retro/Roms:/romm/library/roms
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_ROMM}:8080
+   
+# MARIADB
+  romm-db:
+    image: mariadb:${VERSION_MARIADB}
+    container_name: romm-db
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - stack.env
+    environment:
+      MARIADB_ROOT_PASSWORD: ${ENV_MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${ENV_DB_NAME}
+      MARIADB_USER: ${ENV_DB_USER}
+      MARIADB_PASSWORD: ${ENV_DB_PASSWD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/romm/mysql:/var/lib/mysql
+    networks:
+      - net
+
+
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true

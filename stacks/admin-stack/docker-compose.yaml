@@ -1,0 +1,119 @@
+services:
+
+# UPTIME-KUMA
+  uptime-kuma:
+    image: louislam/uptime-kuma:${VERSION_UPTIME_KUMA}
+    container_name: uptime-kuma
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/uptime-kuma:/app/data
+    networks:
+      - net
+    ports:
+      - ${PORT1_UPTIME_KUMA}:3001
+
+# BESZEL
+  beszel:
+    image: henrygd/beszel:${VERSION_BESZEL}
+    container_name: beszel
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/beszel/data:/beszel_data
+      - /home/docker/beszel/socket:/beszel_socket
+    networks:
+      - net
+    ports:
+      - ${PORT1_BESZEL}:8090
+
+  beszel-agent:
+    image: henrygd/beszel-agent:${VERSION_BESZEL}
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - stack.env
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      HUB_URL: http://localhost:8090
+      TOKEN: ${ENV_BESZEL_TOKEN}
+      KEY: ${ENV_BESZEL_KEY}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/docker/beszel/agent/data:/var/lib/beszel-agent
+      - /home/docker/beszel/socket:/beszel_socket
+      - ${VOL1}/.beszel:/extra-filesystems/md0:ro
+    
+# WATCHTOWER
+  watchtower:
+    image: containrrr/watchtower:${VERSION_WATCHTOWER}
+    container_name: watchtower
+    restart: no
+    env_file:
+      - stack.env
+    environment:
+      WATCHTOWER_CLEANUP: true
+      #WATCHTOWER_SCHEDULE: 0 30 0 * * *
+      #DOCKER_HOST:
+      WATCHTOWER_INCLUDE_RESTARTING: true
+      WATCHTOWER_INCLUDE_STOPPED: true
+      WATCHTOWER_RUN_ONCE: true
+      WATCHTOWER_ROLLING_RESTART: false
+      WATCHTOWER_NOTIFICATIONS_LEVEL: info
+      WATCHTOWER_NOTIFICATION_SKIP_TITLE: true
+      WATCHTOWER_NOTIFICATION_URL: ntfy://:${ENV_WATCHTOWER_NTFY_URL}/log?scheme=http&title=watchtower+updates
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - net
+
+# AUTOHEAL
+  autoheal:
+    deploy:
+      replicas: 1
+    image: willfarrell/autoheal:${VERSION_AUTOHEAL}
+    container_name: autoheal
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: none
+
+# DOCKERPROXY
+  dockerproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:${VERSION_DOCKERPROXY}
+    container_name: dockerproxy
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      CONTAINERS: 1 # Allow access to viewing containers
+      SERVICES: 0 # Allow access to viewing services (necessary when using Docker Swarm)
+      TASKS: 0 # Allow access to viewing tasks (necessary when using Docker Swarm)
+      POST: 0 # Disallow any POST operations (effectively read-only)
+    ports:
+      - ${PORT1_DOCKERPROXY}:2375
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - net
+
+      
+networks:
+  net:
+    driver: bridge
+  caddy:
+    name: reverseproxy-stack_net
+    external: true
