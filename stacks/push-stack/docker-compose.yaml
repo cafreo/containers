@@ -60,4 +60,3 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
-

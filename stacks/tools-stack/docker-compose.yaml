@@ -99,6 +99,7 @@ services:
     ports:
       - ${PORT1_UNMANIC}:8888
 
+# KIWIX
   kiwix:
       image: ghcr.io/kiwix/kiwix-serve:${VERSION_KIWIX}
       container_name: kiwix
@@ -126,4 +127,3 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
-

@@ -12,7 +12,7 @@ services:
       - /home/docker/startpage/:/usr/share/nginx/html:ro
     ports:
       - ${PORT1_NGINX}:80
-      #- ${PORT1_NGINX}:443
+      #- ${PORT2_NGINX}:443
     networks:
       - net
       - caddy

@@ -30,7 +30,7 @@ services:
       - /home/docker/romm/resources:/romm/resources
       - /home/docker/romm/redis_data:/redis-data
       - /home/docker/romm/assets:/romm/assets
-      - ${VOL1}/Gayming/Retro/Roms:/romm/library/roms
+      - ${VOL1}/Library/Media/Games/Console/Roms:/romm/library/roms:ro
     networks:
       - net
       - caddy

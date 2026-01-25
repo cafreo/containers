@@ -1,5 +1,24 @@
 services:
 
+# HOMARR
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:${VERSION_HOMARR}
+    container_name: homarr
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      DOCKER_HOSTNAMES: dockerproxy
+      DOCKER_PORTS: 2375
+      SECRET_ENCRYPTION_KEY: ${ENV_SECRET_ENCRYPTION_KEY}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/homarr/appdata:/appdata
+    networks:
+      - net
+    ports:
+      - ${PORT1_HOMARR}:7575
+
 # UPTIME-KUMA
   uptime-kuma:
     image: louislam/uptime-kuma:${VERSION_UPTIME_KUMA}
@@ -52,7 +71,7 @@ services:
     
 # WATCHTOWER
   watchtower:
-    image: containrrr/watchtower:${VERSION_WATCHTOWER}
+    image: nickfedor/watchtower:${VERSION_WATCHTOWER}
     container_name: watchtower
     restart: no
     env_file:
@@ -92,16 +111,16 @@ services:
 
 # DOCKERPROXY
   dockerproxy:
-    image: ghcr.io/tecnativa/docker-socket-proxy:${VERSION_DOCKERPROXY}
+    image: linuxserver/socket-proxy:${VERSION_DOCKERPROXY}
     container_name: dockerproxy
     restart: unless-stopped
     env_file:
       - stack.env
     environment:
-      CONTAINERS: 1 # Allow access to viewing containers
-      SERVICES: 0 # Allow access to viewing services (necessary when using Docker Swarm)
-      TASKS: 0 # Allow access to viewing tasks (necessary when using Docker Swarm)
-      POST: 0 # Disallow any POST operations (effectively read-only)
+      CONTAINERS: 1
+      SERVICES: 0
+      TASKS: 0
+      POST: 1
     ports:
       - ${PORT1_DOCKERPROXY}:2375
     volumes:

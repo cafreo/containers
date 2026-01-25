@@ -12,6 +12,7 @@ services:
     environment:
       PUID: 1000
       PGID: 100
+      MALLOC_TRIM_THRESHOLD: 100000
       DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -30,6 +31,7 @@ services:
       - ${VOL1}/Library/Media/IPTV/config:/data/iptv/config:ro
       - ${VOL1}/Library/Media/IPTV/Recordings:/config/data/data/livetv/recordings:rw
       #- ${VOL1}/Library/Media/Music:/data/music:ro
+      - ${VOL1}/Documents/Subtitles:/config/data/data/subtitles:rw
     devices:
       - /dev/dri/renderD128:/dev/dri/renderD128
     networks:

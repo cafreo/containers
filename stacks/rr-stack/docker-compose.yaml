@@ -146,7 +146,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/pyload/config:/config
-      - ${VOL1}/Downloads:/downloads
+      - ${VOL1}/Library/Downloads:/downloads
     
 # JACKETT
   jackett:

@@ -27,14 +27,14 @@ services:
       ND_JUKEBOX_ENABLED: true
       #ND_SPOTIFY_ID: ${ENV_SPOTIFY_ID}
       #ND_SPOTIFY_SECRET: ${ENV_SPOTIFY_SECRET}
-      ND_LASTFM_APIKEY: ${ENV_LASTFM_APIKEY}
-      ND_LASTFM_SECRET: ${ENV_LASTFM_SECRET}
+      ND_LASTFM_APIKEY: ${ENV_ND_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ENV_ND_LASTFM_SECRET}
       ND_LASTFM_ENABLED: true
       ND_UIWELCOMEMESSAGE: Pass the Aux, Nigga!
       ND_ENABLEINSIGHTSCOLLECTOR: false
-      ND_BACKUP_PATH: /backups
-      ND_BACKUP_SCHEDULE: 0 2 * * 1,3,5
-      ND_BACKUP_COUNT: 12
+      #ND_BACKUP_PATH: /backups
+      #ND_BACKUP_SCHEDULE: 0 2 * * 1,3,5
+      #ND_BACKUP_COUNT: 12
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/navidrome/data:/data
