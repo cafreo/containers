@@ -59,7 +59,7 @@ services:
       - stack.env
     environment:
       LISTEN: /beszel_socket/beszel.sock
-      HUB_URL: http://localhost:8090
+      HUB_URL: http://localhost:${PORT1_BESZEL}
       TOKEN: ${ENV_BESZEL_TOKEN}
       KEY: ${ENV_BESZEL_KEY}
     volumes:

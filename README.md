@@ -4,5 +4,5 @@
 </div>
 
 <div align="center">
-    <p><img width=100% src="/screenshots/lf_screenshot1.png"/></p>
+    <p><img width=100% src="/screenshots/screenshot1.png"/></p>
 </div>
