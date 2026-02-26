@@ -19,19 +19,21 @@ services:
       ND_RECENTLYADDEDBYMODTIME: true
       ND_ENABLEDOWNLOADS: true
       ND_SESSIONTIMEOUT: 72h
-      ND_SCANNER_EXTRACTOR: ffmpeg
       ND_ENABLEMEDIAFILECOVERART: true
       ND_COVERARTPRIORITY: embedded, folder.*, cover.*, front.*, external
       ND_COVERJPEGQUALITY: 75
       ND_ENABLEREPLAYGAIN: true
       ND_JUKEBOX_ENABLED: true
-      #ND_SPOTIFY_ID: ${ENV_SPOTIFY_ID}
-      #ND_SPOTIFY_SECRET: ${ENV_SPOTIFY_SECRET}
+      ND_SPOTIFY_ID: ${ENV_SPOTIFY_ID}
+      ND_SPOTIFY_SECRET: ${ENV_SPOTIFY_SECRET}
       ND_LASTFM_APIKEY: ${ENV_ND_LASTFM_APIKEY}
       ND_LASTFM_SECRET: ${ENV_ND_LASTFM_SECRET}
       ND_LASTFM_ENABLED: true
       ND_UIWELCOMEMESSAGE: Pass the Aux, Nigga!
       ND_ENABLEINSIGHTSCOLLECTOR: false
+      ND_PLUGINS_ENABLED: true
+      ND_PLUGINS_FOLDER: ""
+      ND_PLUGINS_CACHESIZE: 200MB
       #ND_BACKUP_PATH: /backups
       #ND_BACKUP_SCHEDULE: 0 2 * * 1,3,5
       #ND_BACKUP_COUNT: 12
@@ -94,6 +96,26 @@ services:
     ports:
       - ${PORT1_AUDIOBOOKSHELF}:80
 
+# FEISHIN
+  feishin:
+    image: 'ghcr.io/jeffvli/feishin:latest'
+    container_name: feishin
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      SERVER_TYPE: navidrome
+      SERVER_NAME: ${ENV_FEISHIN_SERVER_NAME}
+      SERVER_URL: ${ENV_FEISHIN_SERVER_URL}
+      SERVER_LOCK: false
+      ANALYTICS_DISABLED: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - net
+      - caddy
+    ports:
+      - ${PORT1_FEISHIN}:9180 
 
 networks:
   net:
