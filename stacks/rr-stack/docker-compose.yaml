@@ -89,7 +89,7 @@ services:
       - /home/docker/sabnzbd/config:/config
       - ${VOL1}/Library/Usenet:/downloads
       - ${VOL1}/Library/Usenet/incomplete:/incomplete-downloads
-      - ${VOL1}/Backups/Docker/SABnzbd:/backups
+      - ${VOL1}/Backups/Container/SABnzbd:/backups
 
 # SLSKD
   slskd:
@@ -188,8 +188,8 @@ services:
       LOG_HTML: false
       CAPTCHA_SOLVER: none
     volumes:
-        - /etc/localtime:/etc/localtime:ro
-        - /home/docker/flaresolverr/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/flaresolverr/config:/config
 
 # LIDARR
   lidarr:
@@ -214,7 +214,7 @@ services:
       - /home/docker/lidarr/config:/config
       - ${VOL1}/Library:/data
       - ${VOL1}/.Trash-1000/files/Lidarr:/trash
-      - ${VOL1}/Backups/Docker/Lidarr:/backups
+      - ${VOL1}/Backups/Container/Lidarr:/backups
 
 # RADARR
   radarr:
@@ -238,7 +238,7 @@ services:
       - /home/docker/radarr/config:/config
       - ${VOL1}/Library:/data
       - ${VOL1}/.Trash-1000/files/Radarr:/trash
-      - ${VOL1}/Backups/Docker/Radarr:/backups
+      - ${VOL1}/Backups/Container/Radarr:/backups
 
 # SONARR
   sonarr:
@@ -262,7 +262,7 @@ services:
       - /home/docker/sonarr/config:/config
       - ${VOL1}/Library:/data
       - ${VOL1}/.Trash-1000/files/Sonarr:/trash
-      - ${VOL1}/Backups/Docker/Sonarr:/backups
+      - ${VOL1}/Backups/Container/Sonarr:/backups
 
 # SOULARR
   soularr:
