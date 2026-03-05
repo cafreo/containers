@@ -9,8 +9,6 @@ services:
     # line above must be uncommented to allow external containers to connect.
     cap_add:
       - NET_ADMIN
-    env_file:
-      - stack.env
     environment:
       PUID: 1001
       PGID: 1001
@@ -29,7 +27,7 @@ services:
     networks:
       - net
     ports:
-      - ${PORT1_GLUETUNNET}:8000 
+      - ${PORT1_GLUETUN}:8000 
       - ${PORT1_QBITTORRENT}:8080
       - ${PORT2_QBITTORRENT}:6881
       - ${PORT2_QBITTORRENT}:6881/udp
@@ -56,8 +54,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -79,8 +75,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -104,8 +98,6 @@ services:
       test: "wget -q -O- ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -138,8 +130,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -160,8 +150,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       - PUID=1001
       - PGID=1001
@@ -181,8 +169,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       LOG_LEVEL: info
       LOG_HTML: false
@@ -203,8 +189,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -228,8 +212,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env  
     environment:
       PUID: 1000
       PGID: 100
@@ -252,8 +234,6 @@ services:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -273,8 +253,6 @@ services:
     network_mode: service:gluetun
     depends_on:
       - gluetun 
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -288,3 +266,4 @@ services:
 networks:
   net:
     driver: bridge
+

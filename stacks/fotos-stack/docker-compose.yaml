@@ -5,14 +5,16 @@ services:
     image: ghcr.io/immich-app/immich-server:${VERSION_IMMICH}
     container_name: immich
     restart: unless-stopped
+    healthcheck:
+      disable: false
     # extends:
     #   file: hwaccel.transcoding.yml
     #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
     depends_on:
       - redis
       - database
-    env_file:
-      - stack.env
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${VOL1}/Media/Pictures/Immich:/data
@@ -36,8 +38,6 @@ services:
     # extends: # uncomment this section for hardware acceleration - see https://immich.app/docs/features/ml-hardware-acceleration
     #   file: hwaccel.ml.yml
     #   service: cpu # set to one of [armnn, cuda, openvino, openvino-wsl] for accelerated inference - use the `-wsl` version for WSL2 where applicable
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/immich/cache:/cache
@@ -51,8 +51,6 @@ services:
     restart: unless-stopped
     healthcheck:
       test: redis-cli ping || exit 1
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/immich/redis/data:/data
@@ -64,9 +62,9 @@ services:
     image: ghcr.io/immich-app/postgres:${VERSION_POSTGRESQL}
     container_name: immich-pg
     restart: unless-stopped
+    healthcheck:
+      disable: false
     shm_size: 128mb
-    env_file:
-      - stack.env
     environment:
       POSTGRES_DB: ${DB_DATABASE_NAME}
       POSTGRES_USER: ${DB_USERNAME}
@@ -76,7 +74,7 @@ services:
       # DB_STORAGE_TYPE: 'HDD'
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/immich/postgres:/var/lib/postgresql/data
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     networks:
       - net
 

@@ -10,8 +10,6 @@ services:
       - SYS_MODULE #optional
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-    env_file:
-      - stack.env
     environment:
       PUID: 1001
       PGID: 1001
@@ -38,8 +36,6 @@ services:
     image: oznu/cloudflare-ddns:${VERSION_DYNDNS}
     container_name: dyndns_vpn
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       PUID: 1001
       PGID: 1001
@@ -57,3 +53,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

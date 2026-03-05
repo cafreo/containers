@@ -5,8 +5,6 @@ services:
     image: ghcr.io/homarr-labs/homarr:${VERSION_HOMARR}
     container_name: homarr
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       DOCKER_HOSTNAMES: dockerproxy
       DOCKER_PORTS: 2375
@@ -24,8 +22,6 @@ services:
     image: louislam/uptime-kuma:${VERSION_UPTIME_KUMA}
     container_name: uptime-kuma
     restart: unless-stopped
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/uptime-kuma:/app/data
@@ -39,8 +35,6 @@ services:
     image: henrygd/beszel:${VERSION_BESZEL}
     container_name: beszel
     restart: unless-stopped
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/beszel/data:/beszel_data
@@ -55,8 +49,6 @@ services:
     container_name: beszel-agent
     restart: unless-stopped
     network_mode: host
-    env_file:
-      - stack.env
     environment:
       LISTEN: /beszel_socket/beszel.sock
       HUB_URL: http://localhost:${PORT1_BESZEL}
@@ -76,8 +68,6 @@ services:
     image: willfarrell/autoheal:${VERSION_AUTOHEAL}
     container_name: autoheal
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       AUTOHEAL_CONTAINER_LABEL: all
     volumes:
@@ -90,8 +80,6 @@ services:
     image: linuxserver/socket-proxy:${VERSION_DOCKERPROXY}
     container_name: dockerproxy
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       CONTAINERS: 1
       SERVICES: 0
@@ -112,3 +100,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

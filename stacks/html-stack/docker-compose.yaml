@@ -5,8 +5,6 @@ services:
     image: nginx:${VERSION_NGINX}
     container_name: startpage
     restart: unless-stopped
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/startpage/:/usr/share/nginx/html:ro
@@ -24,3 +22,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

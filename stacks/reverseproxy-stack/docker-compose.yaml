@@ -7,8 +7,6 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/caddy/Caddyfile:/etc/caddy/Caddyfile
@@ -31,8 +29,6 @@ services:
     image: oznu/cloudflare-ddns:latest
     container_name: dyndns
     restart: always
-    env_file:
-      - stack.env
     environment:
       PUID: 1001
       PGID: 1001
@@ -47,3 +43,4 @@ services:
 networks:
   net:
     driver: bridge
+

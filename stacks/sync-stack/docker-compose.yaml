@@ -5,8 +5,6 @@ services:
     image: mozilla/syncserver:${VERSION_SYNCSERVER}
     container_name: mz-syncserver
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       PUID: 1001
       PGID: 1001
@@ -31,8 +29,6 @@ services:
     image: linuxserver/syncthing:${VERSION_SYNCTHING}
     container_name: syncthing
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -56,3 +52,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

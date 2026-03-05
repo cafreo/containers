@@ -5,8 +5,6 @@ services:
     image: deluan/navidrome:${VERSION_NAVIDROME}
     container_name: navidrome
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       ND_SCANSCHEDULE: 20m
       ND_LOGLEVEL: debug  
@@ -55,8 +53,6 @@ services:
     image: linuxserver/beets:${VERSION_BEETS}
     container_name: beets
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -76,8 +72,6 @@ services:
     container_name: audiobookshelf
     restart: unless-stopped
     user: 1000:100
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -101,8 +95,6 @@ services:
     image: 'ghcr.io/jeffvli/feishin:latest'
     container_name: feishin
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       SERVER_TYPE: navidrome
       SERVER_NAME: ${ENV_FEISHIN_SERVER_NAME}
@@ -124,3 +116,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

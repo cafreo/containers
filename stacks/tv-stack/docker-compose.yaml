@@ -7,8 +7,6 @@ services:
     restart: unless-stopped
     group_add:
       - "105"
-    env_file:
-      - stack.env
     environment:
       PUID: 1000
       PGID: 100
@@ -50,8 +48,6 @@ services:
     restart: unless-stopped
     group_add:
       - "105"
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/ersatztv/config:/config
@@ -81,8 +77,6 @@ services:
     image: cyberpoison/tv-epg:${VERSION_TV_EPG}
     container_name: epg
     restart: unless-stopped
-    env_file:
-      - stack.env
     environment:
       - 'WEBSITES=hd-plus.de,sky.de,web.magentatv.de,pluto.tv'
     volumes:
@@ -105,8 +99,6 @@ services:
       timeout: 3s
       interval: 15s
       retries: 3
-    env_file:
-      - stack.env
     environment:
       LOG_LEVEL: debug
     volumes:
@@ -125,3 +117,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+

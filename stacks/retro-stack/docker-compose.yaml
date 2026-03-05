@@ -9,8 +9,6 @@ services:
       romm-db:
         condition: service_healthy
         restart: true
-    env_file:
-      - stack.env
     environment:
       ENABLE_RESCAN_ON_FILESYSTEM_CHANGE: true
       RESCAN_ON_FILESYSTEM_CHANGE_DELAY: 5
@@ -49,8 +47,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    env_file:
-      - stack.env
     environment:
       MARIADB_ROOT_PASSWORD: ${ENV_MARIADB_ROOT_PASSWORD}
       MARIADB_DATABASE: ${ENV_DB_NAME}

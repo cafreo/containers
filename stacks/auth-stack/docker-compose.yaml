@@ -11,8 +11,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    env_file:
-      - stack.env
     environment:
       AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
       AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
@@ -40,8 +38,6 @@ services:
     depends_on:
       - postgresql
       - redis
-    env_file:
-      - stack.env
     environment:
       AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
       AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
@@ -80,8 +76,6 @@ services:
       - CMD-SHELL
       - pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
       timeout: 5s
-    env_file:
-      - stack.env
     environment:
       POSTGRES_DB: ${ENV_POSTGRESQL_DB}
       POSTGRES_PASSWORD: ${ENV_POSTGRESQL_PASSWORD}
@@ -106,8 +100,6 @@ services:
       - CMD-SHELL
       - redis-cli ping | grep PONG
       timeout: 3s
-    env_file:
-      - stack.env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/authentik/redis:/data
@@ -124,3 +116,4 @@ networks:
   caddy:
     name: reverseproxy-stack_net
     external: true
+
