@@ -97,7 +97,7 @@ services:
       environment:
         PUID: 1000
         PGID: 1000
-        DOWNLOAD: ${ENV_DOWNLOAD}
+        DOWNLOAD: ${ENV_KIWIX_DOWNLOAD}
       volumes:
         - /etc/localtime:/etc/localtime:ro
         - ${VOL1}/Documents/Wiki:/data
@@ -106,19 +106,20 @@ services:
       ports:
         - ${PORT1_KIWIX}:8080
 
-# STIRLING PDF
-  stirling-pdf:
-    image: stirlingtools/stirling-pdf:${VERSION_STIRLING_PDF}
-    container_name: stirling-pdf
+# BENTO PDF
+  bento-pdf:
+    image: ghcr.io/alam00000/bentopdf-simple:${VERSION_BENTO_PDF}
+    container_name: bento-pdf
     restart: unless-stopped
+    environment:
+      DISABLE_IPV6: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/stirling/data:/configs
     networks:
         - net
         - public
     ports:
-      - ${PORT1_STIRLING_PDF}:8080
+      - ${PORT1_BENTO_PDF}:8080
     
 
 networks:
