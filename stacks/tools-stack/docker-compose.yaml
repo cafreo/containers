@@ -6,15 +6,13 @@ services:
     container_name: freshrss
     restart: unless-stopped
     environment:
-      PUID: 1001
-      PGID: 1001
       CRON_MIN: 5, 25, 45
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/freshrss/config:/config
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_FRESHRSS}:80
 
@@ -27,7 +25,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_IT_TOOLS}:80
 
@@ -52,7 +50,7 @@ services:
     restart: unless-stopped
     environment:
       PUID: 1000
-      PGID: 100
+      PGID: 1000
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/sqlitebrowser/config:/config
@@ -73,7 +71,7 @@ services:
       timeout: 10s
     environment:
       PUID: 1000
-      PGID: 100
+      PGID: 1000
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/unmanic/config:/config
@@ -97,8 +95,8 @@ services:
       command:
         - '*.zim'
       environment:
-        PUID: 1001
-        PGID: 1001
+        PUID: 1000
+        PGID: 1000
         DOWNLOAD: ${ENV_DOWNLOAD}
       volumes:
         - /etc/localtime:/etc/localtime:ro
@@ -107,12 +105,26 @@ services:
         - net
       ports:
         - ${PORT1_KIWIX}:8080
-      
+
+# STIRLING PDF
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:${VERSION_STIRLING_PDF}
+    container_name: stirling-pdf
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/stirling/data:/configs
+    networks:
+        - net
+        - public
+    ports:
+      - ${PORT1_STIRLING_PDF}:8080
+    
 
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 
