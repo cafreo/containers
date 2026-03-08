@@ -24,7 +24,7 @@ services:
       - /home/docker/authentik/media:/media
       - /home/docker/authentik/templates:/templates
     networks:
-      - caddy
+      - public
       - net 
     ports:
       - "${PORT1_AUTHENTIK}:9000"
@@ -55,12 +55,10 @@ services:
     # (1000:1000 by default)
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
       - /home/docker/authentik/media:/media
       - /home/docker/authentik/certs:/certs
       - /home/docker/authentik/templates:/templates
     networks:
-      - dockerproxy
       - net
 
 # POSTGRESQL
@@ -110,10 +108,7 @@ services:
 networks:
   net:
     driver: bridge
-  dockerproxy:
-    name: admin-stack_net
-    external: true
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 

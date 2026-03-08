@@ -5,7 +5,6 @@ services:
     image: binwiederhier/ntfy:${VERSION_NTFY}
     container_name: ntfy
     restart: unless-stopped
-    user: 1001:1001
     command:
       - serve
     healthcheck: # optional: remember to adapt the host:port to your environment

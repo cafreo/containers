@@ -20,7 +20,7 @@ services:
       - ${VOL1}/Media/Pictures/Immich:/data
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_IMMICH}:2283
     dns:
@@ -82,6 +82,6 @@ services:
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true

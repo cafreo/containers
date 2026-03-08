@@ -13,13 +13,13 @@ services:
       #- ${PORT2_NGINX}:443
     networks:
       - net
-      - caddy
+      - public
 
 
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 

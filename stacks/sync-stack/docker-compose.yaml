@@ -6,8 +6,6 @@ services:
     container_name: mz-syncserver
     restart: unless-stopped
     environment:
-      PUID: 1001
-      PGID: 1001
       SYNCSERVER_PUBLIC_URL: ${ENV_SYNCSERVER_PUBLIC_URL}
       SYNCSERVER_SECRET: ${ENV_SYNCSERVER_SECRET}
       SYNCSERVER_FORCE_WSGI_ENVIRON: true
@@ -20,7 +18,7 @@ services:
       - /home/docker/mz-syncserver:/data
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_SYNCSERVER}:5000
 
@@ -31,7 +29,7 @@ services:
     restart: unless-stopped
     environment:
       PUID: 1000
-      PGID: 100
+      PGID: 1000
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/syncthing/config:/config
@@ -49,7 +47,7 @@ services:
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 

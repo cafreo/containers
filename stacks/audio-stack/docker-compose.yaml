@@ -44,7 +44,7 @@ services:
       #- ${VOL1}/Library/Media/Podcasts:/podcasts:ro
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_NAVIDROME}:4533
 
@@ -86,7 +86,7 @@ services:
       - ${VOL1}/Library/Torrents/Audiobooks:/audiobooks2
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_AUDIOBOOKSHELF}:80
 
@@ -105,7 +105,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_FEISHIN}:9180 
 
@@ -113,7 +113,7 @@ services:
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 

@@ -70,6 +70,9 @@ services:
     restart: unless-stopped
     environment:
       AUTOHEAL_CONTAINER_LABEL: all
+      AUTOHEAL_INTERVAL: 30
+      AUTOHEAL_START_PERIOD: 0
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: 20
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -97,7 +100,4 @@ services:
 networks:
   net:
     driver: bridge
-  caddy:
-    name: reverseproxy-stack_net
-    external: true
 

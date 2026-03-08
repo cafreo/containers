@@ -23,6 +23,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - net
+
+# CLOUDFLARE TUNNEL
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:${VERSION_CLOUDFLARED}
+    container_name: cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${ENV_CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - net
+
       
 networks:
   net:
