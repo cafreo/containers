@@ -52,6 +52,19 @@ services:
     ports:
       - ${PORT1_MOLLYSOCKET}:8020
 
+# MIND
+  mind:
+    image: mrcas/mind:${VERSION_MIND}
+    container_name: mind
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/mind/db:/app/db
+    networks:
+      - net
+    ports:       
+      - ${PORT1_MIND}:8080
+
 
 networks:
   net:
