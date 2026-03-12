@@ -34,7 +34,8 @@ services:
 # DYNDNS
   cloudflare-ddns:
     image: favonia/cloudflare-ddns:latest
-    restart: always
+    container_name: dyndns_vpn
+    restart: unless-stopped
     read_only: true
     cap_drop: [all]
     security_opt: [no-new-privileges:true]
