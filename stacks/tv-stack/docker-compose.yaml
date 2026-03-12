@@ -9,12 +9,12 @@ services:
       - "105"
     environment:
       PUID: 1000
-      PGID: 100
+      PGID: 1000
       MALLOC_TRIM_THRESHOLD: 100000
       DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/jellyfin:/config
+      - /home/docker/jellyfin/config:/config
       - ${VOL1}/Library/Media/TVShows/Owned:/data/tvshows1:ro
       - ${VOL1}/Library/Media/TVShows/Rented:/data/tvshows2:ro
       - ${VOL1}/Library/Media/TVShows/Imported:/data/tvshows3:ro
@@ -34,7 +34,7 @@ services:
       - /dev/dri/renderD128:/dev/dri/renderD128
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_JELLYFIN}:8096
       #- ${PORT2_JELLYFIN}:8920 #optional
@@ -103,10 +103,10 @@ services:
       LOG_LEVEL: debug
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/seerr/data:/app/config
+      - /home/docker/seerr/config:/app/config
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_SEERR}:5055
 
@@ -114,7 +114,7 @@ services:
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
 
