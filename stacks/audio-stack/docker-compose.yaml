@@ -96,10 +96,11 @@ services:
     container_name: feishin
     restart: unless-stopped
     environment:
+      SERVER_LOCK: true
       SERVER_TYPE: navidrome
       SERVER_NAME: ${ENV_FEISHIN_SERVER_NAME}
       SERVER_URL: ${ENV_FEISHIN_SERVER_URL}
-      SERVER_LOCK: false
+      REMOTE_URL: ${ENV_FEISHIN_SERVER_URL}
       ANALYTICS_DISABLED: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
