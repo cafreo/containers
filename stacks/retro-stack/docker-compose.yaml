@@ -26,7 +26,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/romm/config:/romm/config
       - /home/docker/romm/resources:/romm/resources
-      - /home/docker/romm/redis_data:/redis-data
       - /home/docker/romm/assets:/romm/assets
       - ${VOL1}/Library/Media/Games/Console/Roms:/romm/library/roms:ro
     networks:
@@ -54,10 +53,14 @@ services:
       MARIADB_PASSWORD: ${ENV_DB_PASSWD}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/romm/mysql:/var/lib/mysql
+      - mysql:/var/lib/mysql
     networks:
       - net
 
+
+volumes:
+  mysql:
+    driver: local
 
 networks:
   net:

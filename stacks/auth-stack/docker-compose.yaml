@@ -46,13 +46,6 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${ENV_POSTGRESQL_PASSWORD}
       AUTHENTIK_SECRET_KEY: ${ENV_AUTHENTIK_SECRET_KEY}
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
-    user: root
-    # `user: root` and the docker socket volume are optional.
-    # See more for the docker socket integration here:
-    # https://goauthentik.io/docs/outposts/integrations/docker
-    # Removing `user: root` also prevents the worker from fixing the permissions
-    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
-    # (1000:1000 by default)
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/authentik/media:/media
@@ -80,7 +73,7 @@ services:
       POSTGRES_USER: ${ENV_POSTGRESQL_USER}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/authentik/database:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     networks:
       - net
 
@@ -100,10 +93,12 @@ services:
       timeout: 3s
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/authentik/redis:/data
     networks:
       - net
     
+volumes:
+  postgres:
+    driver: local
 
 networks:
   net:
