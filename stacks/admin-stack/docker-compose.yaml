@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/uptime-kuma:/app/data
+      - /home/docker/uptime-kuma/data:/app/data
     networks:
       - net
     ports:
@@ -100,4 +100,3 @@ services:
 networks:
   net:
     driver: bridge
-

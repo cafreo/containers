@@ -10,6 +10,7 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
+      TZ: ${ENV_TZ}
       FIREWALL_OUTBOUND_SUBNETS: ${ENV_FIREWALL_OUTBOUND_SUBNETS}
       VPN_SERVICE_PROVIDER: ${ENV_VPN_SERVICE_PROVIDER}
       VPN_TYPE: ${ENV_VPN_TYPE}
@@ -252,7 +253,7 @@ services:
       SCRIPT_INTERVAL: 14400
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/soularr:/data
+      - /home/docker/soularr/data:/data
       - ${VOL1}/Library/Soulseek/downloads:/downloads
      
 

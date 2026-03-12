@@ -15,7 +15,7 @@ services:
       PORT: 5000
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/mz-syncserver:/data
+      - /home/docker/mz-syncserver/data:/data
     networks:
       - net
       - public
