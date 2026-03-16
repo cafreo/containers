@@ -63,8 +63,6 @@ services:
     
 # AUTOHEAL
   autoheal:
-    deploy:
-      replicas: 1
     image: willfarrell/autoheal:${VERSION_AUTOHEAL}
     container_name: autoheal
     restart: unless-stopped
