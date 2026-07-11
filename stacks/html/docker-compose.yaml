@@ -1,0 +1,42 @@
+services:
+
+# STARTPAGE
+  startpage:
+    image: nginx:${VERSION_NGINX}
+    container_name: startpage
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /home/docker/html/startpage/:/usr/share/nginx/html:ro
+    ports:
+      - ${PORT1_STARTPAGE}:80
+      #- ${PORT2_STARTPAGE}:443
+    networks:
+      - net
+      - public
+
+# SERVICES
+  services:
+    image: nginx:${VERSION_NGINX}
+    container_name: services
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /home/docker/html/services/:/usr/share/nginx/html:ro
+    ports:
+      - ${PORT1_SERVICES}:80
+      #- ${PORT2_SERVICES}:443
+    networks:
+      - net
+      - public
+
+
+networks:
+  net:
+    driver: bridge
+  public:
+    name: reverseproxy-stack_net
+    external: true
+

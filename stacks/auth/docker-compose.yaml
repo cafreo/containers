@@ -9,10 +9,7 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
-      AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
       AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
       AUTHENTIK_POSTGRESQL__NAME: ${ENV_POSTGRESQL_DB}
       AUTHENTIK_POSTGRESQL__USER: ${ENV_POSTGRESQL_USER}
@@ -21,7 +18,7 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/authentik/media:/media
+      - /home/docker/authentik/data:/data
       - /home/docker/authentik/templates:/templates
     networks:
       - public
@@ -33,13 +30,12 @@ services:
   worker:
     image: authentik/server:${VERSION_AUTHENTIK}
     container_name: authentik-wk
-    command: worker
     restart: unless-stopped
+    command: worker
     depends_on:
-      - postgresql
-      - redis
+      postgresql:
+        condition: service_healthy
     environment:
-      AUTHENTIK_REDIS__HOST: ${ENV_AUTHENTIK_REDIS__HOST}
       AUTHENTIK_POSTGRESQL__HOST: ${ENV_AUTHENTIK_POSTGRESQL__HOST}
       AUTHENTIK_POSTGRESQL__NAME: ${ENV_POSTGRESQL_DB}
       AUTHENTIK_POSTGRESQL__USER: ${ENV_POSTGRESQL_USER}    
@@ -48,7 +44,7 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/authentik/media:/media
+      - /home/docker/authentik/data:/data
       - /home/docker/authentik/certs:/certs
       - /home/docker/authentik/templates:/templates
     networks:
@@ -57,7 +53,7 @@ services:
 # POSTGRESQL
   postgresql:
     image: postgres:${VERSION_POSTGRESQL}
-    container_name: authentik-pg
+    container_name: authentik-db
     restart: unless-stopped
     healthcheck:
       interval: 30s
@@ -77,25 +73,7 @@ services:
     networks:
       - net
 
-# REDIS   
-  redis:
-    image: redis:${VERSION_REDIS}
-    container_name: authentik-rs
-    restart: unless-stopped
-    command: --save 60 1 --loglevel warning
-    healthcheck:
-      interval: 30s
-      retries: 5
-      start_period: 20s
-      test:
-      - CMD-SHELL
-      - redis-cli ping | grep PONG
-      timeout: 3s
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-    networks:
-      - net
-    
+
 volumes:
   postgres:
     driver: local

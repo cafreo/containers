@@ -5,6 +5,7 @@ services:
     image: deluan/navidrome:${VERSION_NAVIDROME}
     container_name: navidrome
     restart: unless-stopped
+    user: 1000:1000
     environment:
       ND_SCANSCHEDULE: 20m
       ND_LOGLEVEL: debug  
@@ -22,8 +23,6 @@ services:
       ND_COVERJPEGQUALITY: 75
       ND_ENABLEREPLAYGAIN: true
       ND_JUKEBOX_ENABLED: true
-      ND_SPOTIFY_ID: ${ENV_SPOTIFY_ID}
-      ND_SPOTIFY_SECRET: ${ENV_SPOTIFY_SECRET}
       ND_LASTFM_APIKEY: ${ENV_ND_LASTFM_APIKEY}
       ND_LASTFM_SECRET: ${ENV_ND_LASTFM_SECRET}
       ND_LASTFM_ENABLED: true
@@ -71,9 +70,7 @@ services:
     image: advplyr/audiobookshelf:${VERSION_AUDIOBOOKSHELF}
     container_name: audiobookshelf
     restart: unless-stopped
-    environment:
-      AUDIOBOOKSHELF_UID: 1000
-      AUDIOBOOKSHELF_GID: 1000
+    user: 1000:1000
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/audiobookshelf/config:/config
@@ -87,9 +84,27 @@ services:
     ports:
       - ${PORT1_AUDIOBOOKSHELF}:80
 
+# REWIND
+  rewind:
+    image: bernardogiordano/rewind:${VERSION_REWIND}
+    container_name: rewind
+    restart: unless-stopped
+    environment:
+      NG_ALLOWED_HOSTS: ${ENV_REWIND_NG_ALLOWED_HOSTS}
+      NAVIDROME_URL: ${ENV_REWIND_NAVIDROME_URL}
+      DB_PATH: /data/navidrome.db
+    volumes:
+      - /home/docker/navidrome/data:/data:ro
+    networks:
+      - net
+      - public
+    ports:
+      - ${PORT1_REWIND}:4000
+      
+    
 # FEISHIN
   feishin:
-    image: 'ghcr.io/jeffvli/feishin:latest'
+    image: ghcr.io/jeffvli/feishin:${VERSION_FEISHIN}
     container_name: feishin
     restart: unless-stopped
     environment:
@@ -105,7 +120,7 @@ services:
       - net
       - public
     ports:
-      - ${PORT1_FEISHIN}:9180 
+      - ${PORT1_FEISHIN}:9180
 
 
 networks:

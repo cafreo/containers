@@ -9,6 +9,10 @@ services:
       romm-db:
         condition: service_healthy
         restart: true
+    deploy:
+      resources:
+        limits:
+          memory: 8192M
     environment:
       ENABLE_RESCAN_ON_FILESYSTEM_CHANGE: true
       RESCAN_ON_FILESYSTEM_CHANGE_DELAY: 5
@@ -24,10 +28,11 @@ services:
       HASHEOUS_API_ENABLED: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - redis:/redis-data
       - /home/docker/romm/config:/romm/config
       - /home/docker/romm/resources:/romm/resources
       - /home/docker/romm/assets:/romm/assets
-      - ${VOL1}/Library/Media/Games/Console/Roms:/romm/library/roms:ro
+      - ${VOL1}/Library/Media/Games/Console:/romm/library:ro
     networks:
       - net
       - caddy
@@ -60,6 +65,8 @@ services:
 
 volumes:
   mysql:
+    driver: local
+  redis:
     driver: local
 
 networks:

@@ -59,7 +59,7 @@ services:
 # POSTGRES
   database:
     image: ghcr.io/immich-app/postgres:${VERSION_POSTGRESQL}
-    container_name: immich-pg
+    container_name: immich-db
     restart: unless-stopped
     healthcheck:
       disable: false
@@ -76,6 +76,7 @@ services:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     networks:
       - net
+
 
 volumes:
   postgres:

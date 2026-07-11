@@ -6,11 +6,10 @@ services:
     container_name: jellyfin
     restart: unless-stopped
     group_add:
-      - "105"
+      - 105
     environment:
       PUID: 1000
       PGID: 1000
-      MALLOC_TRIM_THRESHOLD: 100000
       DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -72,21 +71,6 @@ services:
     ports:
       - ${PORT1_ERSATZTV}:8409
 
-# TV-EPG
-  tv-epg:
-    image: cyberpoison/tv-epg:${VERSION_TV_EPG}
-    container_name: epg
-    restart: unless-stopped
-    environment:
-      - 'WEBSITES=hd-plus.de,sky.de,web.magentatv.de,pluto.tv'
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${VOL1}/Library/Media/IPTV/config:/epg/www
-    networks:
-      - net
-    ports:
-      - ${PORT1_TV_EPG}:3000
-
 # SEERR
   seerr:
     image: seerr/seerr:${VERSION_SEERR}
@@ -109,6 +93,25 @@ services:
       - public
     ports:
       - ${PORT1_SEERR}:5055
+
+# TV-EPG
+  tv-epg:
+    image: cyberpoison/tv-epg:${VERSION_TV_EPG}
+    container_name: epg
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    environment:
+      WEBSITES: '${ENV_EPG_WEBSITES}'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${VOL1}/Library/Media/IPTV/config:/epg/www
+    networks:
+      - net
+    ports:
+      - ${PORT1_TV_EPG}:3000
 
 
 networks:

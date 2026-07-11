@@ -36,7 +36,6 @@ services:
       - ${PORT3_SLSKD}:50300
       - ${PORT1_PYLOAD}:8001
       - ${PORT1_JACKETT}:9117
-      - ${PORT1_FLARESOLVERR}:8191
       - ${PORT1_LIDARR}:8686
       - ${PORT1_RADARR}:7878
       - ${PORT1_SONARR}:8989
@@ -47,12 +46,14 @@ services:
     container_name: qbittorrent
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 8192M
     environment:
       PUID: 1000
       PGID: 1000
@@ -68,8 +69,6 @@ services:
     container_name: sabnzbd
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -89,10 +88,7 @@ services:
     image: slskd/slskd:${VERSION_SLSKD}
     container_name: slskd
     restart: unless-stopped
-    user: 1000:100
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "wget -q -O- ifconfig.me  || exit 1"
       interval: 1m
@@ -105,7 +101,7 @@ services:
       SLSKD_FILE_PERMISSION_MODE: 666
       SLSKD_DOWNLOADS_DIR: /downloads
       SLSKD_INCOMPLETE_DIR: /incomplete
-      SLSKD_SHARED_DIR: /home/app/shares/
+      SLSKD_SHARED_DIR: /shares
       SLSKD_SHARE_FILTER: .ini$,Thumbs.db$,.DS_Store$,.lrc$
       SLSKD_HTTP_PORT: 5030
     volumes:
@@ -113,7 +109,7 @@ services:
       - /home/docker/slskd/app:/app
       - ${VOL1}/Library/Soulseek/downloads:/downloads
       - ${VOL1}/Library/Soulseek/incomplete:/incomplete
-      - ${VOL1}/Library/Media/Music:/home/app/shares/Music:ro
+      - ${VOL1}/Library/Media/Music:/shares/Music:ro
       #- "${VOL1}/Library/Media/Movies:/home/app/shares/Movies:ro"
       #- "${VOL1}/Library/Media/TVShows:/home/app/shares/TVShows:ro"
 
@@ -123,8 +119,6 @@ services:
     container_name: pyload
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -143,8 +137,6 @@ services:
     container_name: jackett
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -153,25 +145,22 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/jackett/config:/config
 
-# FLARESOLVERR
-  flaresolverr:
-    image: flaresolverr/flaresolverr:${VERSION_FLARESOLVERR}
-    container_name: flaresolverr
+# BYPARR
+  byparr:
+    image: ghcr.io/thephaseless/byparr:${VERSION_BYPARR}
+    container_name: byparr
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
       timeout: 10s
-    environment:
-      LOG_LEVEL: info
-      LOG_HTML: false
-      CAPTCHA_SOLVER: none
+    init: true
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/flaresolverr/config:/config
 
 # LIDARR
   lidarr:
@@ -179,8 +168,6 @@ services:
     container_name: lidarr
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -202,8 +189,6 @@ services:
     container_name: radarr
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -224,8 +209,6 @@ services:
     container_name: sonarr
     restart: unless-stopped
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     healthcheck:
       test: "curl ifconfig.me  || exit 1"
       interval: 1m
@@ -247,8 +230,6 @@ services:
     restart: unless-stopped
     user: 1000:1000
     network_mode: service:gluetun
-    depends_on:
-      - gluetun
     environment:
       SCRIPT_INTERVAL: 14400
     volumes:

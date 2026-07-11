@@ -5,9 +5,10 @@ services:
     image: ghcr.io/homarr-labs/homarr:${VERSION_HOMARR}
     container_name: homarr
     restart: unless-stopped
+    depends_on:
+      - dockerproxy
     environment:
-      DOCKER_HOSTNAMES: dockerproxy
-      DOCKER_PORTS: 2375
+      DOCKER_HOST: tcp://dockerproxy:2375
       SECRET_ENCRYPTION_KEY: ${ENV_SECRET_ENCRYPTION_KEY}
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -35,6 +36,7 @@ services:
     image: henrygd/beszel:${VERSION_BESZEL}
     container_name: beszel
     restart: unless-stopped
+    user: 1001:1001
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/beszel/data:/beszel_data
@@ -48,24 +50,29 @@ services:
     image: henrygd/beszel-agent:${VERSION_BESZEL}
     container_name: beszel-agent
     restart: unless-stopped
-    network_mode: host
+    user: 1001:1001
     environment:
       LISTEN: /beszel_socket/beszel.sock
       HUB_URL: http://localhost:${PORT1_BESZEL}
       TOKEN: ${ENV_BESZEL_TOKEN}
       KEY: ${ENV_BESZEL_KEY}
+      DOCKER_HOST: tcp://${PORT1_DOCKERPROXY}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      #- /var/run/docker.sock:/var/run/docker.sock:ro
       - /home/docker/beszel/agent/data:/var/lib/beszel-agent
       - /home/docker/beszel/socket:/beszel_socket
       - ${VOL1}/.beszel:/extra-filesystems/md0:ro
+    network_mode: host
     
 # AUTOHEAL
   autoheal:
     image: willfarrell/autoheal:${VERSION_AUTOHEAL}
     container_name: autoheal
     restart: unless-stopped
+    user: 1001:1001
+    deploy:
+      replicas: 1
     environment:
       AUTOHEAL_CONTAINER_LABEL: all
       AUTOHEAL_INTERVAL: 30
@@ -94,6 +101,33 @@ services:
     networks:
       - net
 
+# CRONMASTER
+  cronmaster:
+    image: ghcr.io/fccview/cronmaster:${VERSION_CRONMASTER}
+    container_name: cronmaster
+    restart: always
+    user: 0:0
+    pid: host
+    privileged: true
+    init: true
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_CLOCK_UPDATE_INTERVAL: 60000
+      DOCKER: true
+      AUTH_PASSWORD: ${ENV_CRONMASTER_AUTH_PASSWORD}
+      HOST_CRONTAB_USER: ${ENV_CRONMASTER_HOST_CRONTAB_USER}
+      DOCKER_HOST: tcp://dockerproxy:2375
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- /var/run/docker.sock:/var/run/docker.sock
+      - /home/docker/cronmaster/scripts:/app/scripts
+      - /home/docker/cronmaster/data:/app/data
+      - /home/docker/cronmaster/snippets:/app/snippets
+    networks:
+      - net
+    ports:
+      - ${PORT1_CRONMASTER}:3000
+    
       
 networks:
   net:

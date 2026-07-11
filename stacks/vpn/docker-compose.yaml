@@ -17,8 +17,8 @@ services:
       SERVERPORT: 51820
       PEERS: ${ENV_PEERS}
       PEERDNS: ${ENV_PEERDNS}
-      INTERNAL_SUBNET: ${ENV_INTERNAL_SUBNET}
-      ALLOWEDIPS: ${ENV_ALLOWEDIPS}
+      INTERNAL_SUBNET: ${ENV_WIREGUARD_INTERNAL_SUBNET}
+      ALLOWEDIPS: ${ENV_WIREGUARD_ALLOWEDIPS}
       PERSISTENTKEEPALIVE_PEERS:  #optional
       LOG_CONFS: true #optional
     volumes:
@@ -36,6 +36,7 @@ services:
     image: favonia/cloudflare-ddns:latest
     container_name: dyndns_vpn
     restart: unless-stopped
+    user: 1001:1001
     read_only: true
     cap_drop: [all]
     security_opt: [no-new-privileges:true]

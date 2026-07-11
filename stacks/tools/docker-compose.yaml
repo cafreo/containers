@@ -82,7 +82,7 @@ services:
       - type: tmpfs
         target: /tmp/unmanic
     devices:
-      - /dev/dri:/dev/dri
+      - /dev/dri/renderD128:/dev/dri/renderD128
     networks:
       - net
     ports:
@@ -108,9 +108,9 @@ services:
         - ${PORT1_KIWIX}:8080
 
 # BENTO PDF
-  bento-pdf:
-    image: ghcr.io/alam00000/bentopdf-simple:${VERSION_BENTO_PDF}
-    container_name: bento-pdf
+  bentopdf:
+    image: ghcr.io/alam00000/bentopdf-simple:${VERSION_BENTOPDF}
+    container_name: bentopdf
     restart: unless-stopped
     environment:
       DISABLE_IPV6: true
@@ -120,8 +120,25 @@ services:
         - net
         - public
     ports:
-      - ${PORT1_BENTO_PDF}:8080
-    
+      - ${PORT1_BENTOPDF}:8080
+
+# FIND MY DEVICE
+  fmd:
+    image: registry.gitlab.com/fmd-foss/fmd-server:${VERSION_FMD}
+    container_name: fmd
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges]
+    volumes:
+      - /home/docker/fmd/config.yml:/etc/fmd-server/config.yml:ro
+      - /home/docker/fmd/db/:/var/lib/fmd-server/db/
+    networks:
+      - net
+      - public
+    ports:
+     - ${PORT1_FMD}:8080
+       
 
 networks:
   net:
