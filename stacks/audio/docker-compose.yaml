@@ -22,7 +22,8 @@ services:
       ND_COVERARTPRIORITY: embedded, folder.*, cover.*, front.*, external
       ND_COVERJPEGQUALITY: 75
       ND_ENABLEREPLAYGAIN: true
-      ND_JUKEBOX_ENABLED: true
+      ND_JUKEBOX_ENABLED: false
+      ND_JUKEBOX_ADMINONLY: true
       ND_LASTFM_APIKEY: ${ENV_ND_LASTFM_APIKEY}
       ND_LASTFM_SECRET: ${ENV_ND_LASTFM_SECRET}
       ND_LASTFM_ENABLED: true
@@ -84,23 +85,31 @@ services:
     ports:
       - ${PORT1_AUDIOBOOKSHELF}:80
 
-# REWIND
-  rewind:
-    image: bernardogiordano/rewind:${VERSION_REWIND}
-    container_name: rewind
+# KOITO
+  koito:
+    image: gabehf/koito:${VERSION_KOITO}
+    container_name: koito
     restart: unless-stopped
-    environment:
-      NG_ALLOWED_HOSTS: ${ENV_REWIND_NG_ALLOWED_HOSTS}
-      NAVIDROME_URL: ${ENV_REWIND_NAVIDROME_URL}
-      DB_PATH: /data/navidrome.db
     volumes:
-      - /home/docker/navidrome/data:/data:ro
+      - /home/docker/koito:/etc/koito
     networks:
       - net
       - public
     ports:
-      - ${PORT1_REWIND}:4000
-      
+      - ${PORT1_KOITO}:4110
+
+  # AURRAL
+  aurral:
+    image: ghcr.io/lklynet/aurral:${VERSION_AURRAL}
+    container_name: aurral
+    restart: unless-stopped
+    volumes:
+      - /home/docker/aurral/data}:/app/backend/data
+    networks:
+      - net
+      - public
+    ports:
+      - ${PORT1_AURRAL}:3001
     
 # FEISHIN
   feishin:
