@@ -34,11 +34,11 @@ services:
       - ${PORT1_SLSKD}:5030
       - ${PORT2_SLSKD}:5031
       - ${PORT3_SLSKD}:50300
-      - ${PORT1_PYLOAD}:8001
       - ${PORT1_JACKETT}:9117
       - ${PORT1_LIDARR}:8686
       - ${PORT1_RADARR}:7878
       - ${PORT1_SONARR}:8989
+      - ${PORT1_SOULMATE}:7373
 
 # QBITTORRENT
   qbittorrent:
@@ -60,6 +60,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/qbittorrent/config:/config
+      - /home/docker/qbittorrent/torrentfiles:/torrentfiles
       - /home/docker/qbittorrent/webui:/webui
       - ${VOL1}/Library/Torrents:/downloads
 
@@ -109,27 +110,9 @@ services:
       - /home/docker/slskd/app:/app
       - ${VOL1}/Library/Soulseek/downloads:/downloads
       - ${VOL1}/Library/Soulseek/incomplete:/incomplete
-      - ${VOL1}/Library/Media/Music:/shares/Music:ro
+      - ${VOL1}/Library/Media/Music/Imported:/shares/Music:ro
       #- "${VOL1}/Library/Media/Movies:/home/app/shares/Movies:ro"
       #- "${VOL1}/Library/Media/TVShows:/home/app/shares/TVShows:ro"
-
-# PYLOAD
-  pyload-ng:
-    image: linuxserver/pyload-ng:${VERSION_PYLOAD}
-    container_name: pyload
-    restart: unless-stopped
-    network_mode: service:gluetun
-    healthcheck:
-      test: "curl ifconfig.me  || exit 1"
-      interval: 1m
-      timeout: 10s
-    environment:
-      PUID: 1000
-      PGID: 1000
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /home/docker/pyload/config:/config
-      - ${VOL1}/Library/Downloads:/downloads
     
 # JACKETT
   jackett:
@@ -175,7 +158,7 @@ services:
     environment:
       PUID: 1000
       PGID: 1000
-      DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
+      #DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/lidarr/config:/config
@@ -223,18 +206,34 @@ services:
       - ${VOL1}/.Trash-1000/files/Sonarr:/trash
       - ${VOL1}/Backups/Container/Sonarr:/backups
 
-# SOULARR
-  soularr:
-    image: mrusse08/soularr:${VERSION_SOULARR}
-    container_name: soularr
+  # SOULMATE
+  soulmate:
+    image: banankungen/soulmate:${VERSION_SOULMATE}
+    container_name: soulmate
     restart: unless-stopped
-    user: 1000:1000
     network_mode: service:gluetun
     environment:
-      SCRIPT_INTERVAL: 14400
+      SLSKD__URL: http://gluetunnet:5030
+      SLSKD__KEY: "vx4AIlae8iB1mOz+Ne1oK3e8GX6b8ZEXr7lLnSYnjP0="
+      SLSKD__DOWNLOAD_PATH: /downloads/
+      SLSKD__PUBLIC_URL: http://192.168.178.13:5133
+      LIDARR__URL: http://gluetunnet:8686
+      LIDARR__KEY: 119c05ac76f4454aa9eaf09a6f00bf87
+      LIDARR__DOWNLOAD_PATH: /data/Soulseek/downloads/
+      LIDARR__PUBLIC_URL: http://192.168.178.13:5151
+      MAX_CONCURRENT_DOWNLOADS: 4
+      INITIAL_WAIT_MINUTES: 0
+      REQUIRE_MANUAL_IMPORTS: true
+      SEARCH_MISSING: true
+      SEARCH_UNMET: false
+      STALLED_DOWNLOAD_MINUTES: 60
+      IGNORED_LIDARR_ALBUM_TYPES: Album
+      AUTOMATIC_LIDARR_IMPORT: true
+      DELETE_ERRORED_DOWNLOADS: true
+      DELETE_FAILED_IMPORTS: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/soularr/data:/data
+      - /home/docker/soulmate/config:/config
       - ${VOL1}/Library/Soulseek/downloads:/downloads
      
 
