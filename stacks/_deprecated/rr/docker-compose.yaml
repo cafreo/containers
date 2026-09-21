@@ -1,0 +1,33 @@
+services:
+
+# PYLOAD
+  pyload-ng:
+    image: linuxserver/pyload-ng:${VERSION_PYLOAD}
+    container_name: pyload
+    restart: unless-stopped
+    network_mode: service:gluetun
+    healthcheck:
+      test: "curl ifconfig.me  || exit 1"
+      interval: 1m
+      timeout: 10s
+    environment:
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/pyload/config:/config
+      - ${VOL1}/Library/Downloads:/downloads
+
+# SOULARR
+  soularr:
+    image: mrusse08/soularr:${VERSION_SOULARR}
+    container_name: soularr
+    restart: unless-stopped
+    user: 1000:1000
+    network_mode: service:gluetun
+    environment:
+      SCRIPT_INTERVAL: 14400
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/soularr/data:/data
+      - ${VOL1}/Library/Soulseek/downloads:/downloads
