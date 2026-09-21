@@ -90,26 +90,26 @@ services:
 
 # KIWIX
   kiwix:
-      image: ghcr.io/kiwix/kiwix-serve:${VERSION_KIWIX}
-      container_name: kiwix
-      restart: unless-stopped
-      command:
-        - '*.zim'
-      environment:
-        PUID: 1000
-        PGID: 1000
-        DOWNLOAD: ${ENV_KIWIX_DOWNLOAD}
-      volumes:
-        - /etc/localtime:/etc/localtime:ro
-        - ${VOL1}/Documents/Wiki:/data
-      networks:
-        - net
-      ports:
-        - ${PORT1_KIWIX}:8080
+    image: ghcr.io/kiwix/kiwix-serve:${VERSION_KIWIX}
+    container_name: kiwix
+    restart: unless-stopped
+    command:
+      - '*.zim'
+    environment:
+      PUID: 1000
+      PGID: 1000
+      DOWNLOAD: ${ENV_KIWIX_DOWNLOAD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${VOL1}/Documents/Wiki:/data
+    networks:
+      - net
+    ports:
+      - ${PORT1_KIWIX}:8080
 
 # BENTO PDF
   bentopdf:
-    image: ghcr.io/alam00000/bentopdf-simple:${VERSION_BENTOPDF}
+    image: bentopdfteam/bentopdf-simple:${VERSION_BENTOPDF}
     container_name: bentopdf
     restart: unless-stopped
     environment:
@@ -138,7 +138,7 @@ services:
       - public
     ports:
      - ${PORT1_FMD}:8080
-       
+    
 
 networks:
   net:
@@ -146,4 +146,3 @@ networks:
   public:
     name: reverseproxy-stack_net
     external: true
-

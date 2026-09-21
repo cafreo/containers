@@ -55,4 +55,3 @@ networks:
   public:
     name: reverseproxy-stack_net
     external: true
-

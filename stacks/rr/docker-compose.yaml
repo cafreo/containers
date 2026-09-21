@@ -212,6 +212,10 @@ services:
     container_name: soulmate
     restart: unless-stopped
     network_mode: service:gluetun
+    healthcheck:
+      test: "curl ifconfig.me || exit 1"
+      interval: 1m
+      timeout: 10s
     environment:
       SLSKD__URL: http://gluetunnet:5030
       SLSKD__KEY: "vx4AIlae8iB1mOz+Ne1oK3e8GX6b8ZEXr7lLnSYnjP0="
@@ -240,4 +244,3 @@ services:
 networks:
   net:
     driver: bridge
-

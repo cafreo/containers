@@ -78,6 +78,7 @@ services:
       AUTOHEAL_INTERVAL: 30
       AUTOHEAL_START_PERIOD: 0
       AUTOHEAL_DEFAULT_STOP_TIMEOUT: 20
+      AUTOHEAL_DEBUG: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock

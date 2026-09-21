@@ -26,13 +26,15 @@ services:
       RETROACHIEVEMENTS_API_KEY: ${ENV_RETROACHIEVEMTNS_API_KEY}
       STEAMGRIDDB_API_KEY: 
       HASHEOUS_API_ENABLED: true
+      LOGLEVEL: INFO
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - redis:/redis-data
       - /home/docker/romm/config:/romm/config
       - /home/docker/romm/resources:/romm/resources
       - /home/docker/romm/assets:/romm/assets
-      - ${VOL1}/Library/Media/Games/Console:/romm/library:ro
+      - ${VOL1}/Library/Torrents/Roms/Minerva_Myrient/Roms:/romm/library/roms:ro
+      - ${VOL1}/Documents/RetroBios:/romm/library/bios:ro
     networks:
       - net
       - caddy

@@ -102,7 +102,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1024M
+          memory: 2048M
     environment:
       WEBSITES: '${ENV_EPG_WEBSITES}'
     volumes:
@@ -120,4 +120,3 @@ networks:
   public:
     name: reverseproxy-stack_net
     external: true
-
