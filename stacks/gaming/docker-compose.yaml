@@ -37,7 +37,7 @@ services:
       - ${VOL1}/Documents/RetroBios:/romm/library/bios:ro
     networks:
       - net
-      - caddy
+      - public
     ports:
       - ${PORT1_ROMM}:8080
    
@@ -64,6 +64,31 @@ services:
     networks:
       - net
 
+# HOARD
+  hoard:
+    image: ghcr.io/rleeon/hoard:${VERSION_HOARD}
+    container_name: hoard
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:12421/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      HOARD__LOGGING__LEVEL: info
+      HOARD__LOGGING__FORMAT: json
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - ${VOL1}/Library/Media/Games/PC/Saves:/var/lib/hoard
+      - /home/docker/hoard/config:/etc/hoard
+    networks:
+      - net
+      - public
+    ports:
+      - ${PORT1_HOARD}:12421
+
 
 volumes:
   mysql:
@@ -71,9 +96,10 @@ volumes:
   redis:
     driver: local
 
+
 networks:
   net:
     driver: bridge
-  caddy:
+  public:
     name: reverseproxy-stack_net
     external: true
