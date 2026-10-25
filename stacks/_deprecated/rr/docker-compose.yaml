@@ -31,3 +31,37 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/soularr/data:/data
       - ${VOL1}/Library/Soulseek/downloads:/downloads
+
+# SOULMATE
+  soulmate:
+    image: banankungen/soulmate:${VERSION_SOULMATE}
+    container_name: soulmate
+    restart: unless-stopped
+    network_mode: service:gluetun
+    healthcheck:
+      test: "wget -q -O- api.ipify.org || exit 1"
+      interval: 1m
+      timeout: 10s
+    environment:
+      SLSKD__URL: http://gluetunnet:5030
+      SLSKD__KEY: ${ENV_SOULMATE_SLSKD__KEY}
+      SLSKD__DOWNLOAD_PATH: /downloads/
+      SLSKD__PUBLIC_URL: http://192.168.178.13:5133
+      LIDARR__URL: http://gluetunnet:8686
+      LIDARR__KEY: ${ENV_SOULMATE_LIDARR__KEY}
+      LIDARR__DOWNLOAD_PATH: /data/Soulseek/downloads/
+      LIDARR__PUBLIC_URL: http://192.168.178.13:5151
+      MAX_CONCURRENT_DOWNLOADS: 4
+      INITIAL_WAIT_MINUTES: 0
+      REQUIRE_MANUAL_IMPORTS: true
+      SEARCH_MISSING: true
+      SEARCH_UNMET: false
+      STALLED_DOWNLOAD_MINUTES: 60
+      IGNORED_LIDARR_ALBUM_TYPES: Album
+      AUTOMATIC_LIDARR_IMPORT: true
+      DELETE_ERRORED_DOWNLOADS: true
+      DELETE_FAILED_IMPORTS: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/soulmate/config:/config
+      - ${VOL1}/Library/Soulseek/downloads:/downloads

@@ -38,7 +38,6 @@ services:
       - ${PORT1_LIDARR}:8686
       - ${PORT1_RADARR}:7878
       - ${PORT1_SONARR}:8989
-      - ${PORT1_SOULMATE}:7373
 
 # QBITTORRENT
   qbittorrent:
@@ -47,7 +46,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     deploy:
@@ -71,7 +70,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     environment:
@@ -91,7 +90,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "wget -q -O- ifconfig.me  || exit 1"
+      test: "wget -q -O- api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     environment:
@@ -99,7 +98,6 @@ services:
       PGID: 1000
       SLSKD_REMOTE_CONFIGURATION: true
       SLSKD_UMASK: 002
-      SLSKD_FILE_PERMISSION_MODE: 666
       SLSKD_DOWNLOADS_DIR: /downloads
       SLSKD_INCOMPLETE_DIR: /incomplete
       SLSKD_SHARED_DIR: /shares
@@ -121,7 +119,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     volumes:
@@ -135,7 +133,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     init: true
@@ -152,13 +150,13 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     environment:
       PUID: 1000
       PGID: 1000
-      #DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
+      DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/lidarr/config:/config
@@ -173,7 +171,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     environment:
@@ -193,7 +191,7 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     healthcheck:
-      test: "curl ifconfig.me  || exit 1"
+      test: "curl api.ipify.org || exit 1"
       interval: 1m
       timeout: 10s
     environment:
@@ -205,40 +203,6 @@ services:
       - ${VOL1}/Library:/data
       - ${VOL1}/.Trash-1000/files/Sonarr:/trash
       - ${VOL1}/Backups/Container/Sonarr:/backups
-
-  # SOULMATE
-  soulmate:
-    image: banankungen/soulmate:${VERSION_SOULMATE}
-    container_name: soulmate
-    restart: unless-stopped
-    network_mode: service:gluetun
-    healthcheck:
-      test: "curl ifconfig.me || exit 1"
-      interval: 1m
-      timeout: 10s
-    environment:
-      SLSKD__URL: http://gluetunnet:5030
-      SLSKD__KEY: "vx4AIlae8iB1mOz+Ne1oK3e8GX6b8ZEXr7lLnSYnjP0="
-      SLSKD__DOWNLOAD_PATH: /downloads/
-      SLSKD__PUBLIC_URL: http://192.168.178.13:5133
-      LIDARR__URL: http://gluetunnet:8686
-      LIDARR__KEY: 119c05ac76f4454aa9eaf09a6f00bf87
-      LIDARR__DOWNLOAD_PATH: /data/Soulseek/downloads/
-      LIDARR__PUBLIC_URL: http://192.168.178.13:5151
-      MAX_CONCURRENT_DOWNLOADS: 4
-      INITIAL_WAIT_MINUTES: 0
-      REQUIRE_MANUAL_IMPORTS: true
-      SEARCH_MISSING: true
-      SEARCH_UNMET: false
-      STALLED_DOWNLOAD_MINUTES: 60
-      IGNORED_LIDARR_ALBUM_TYPES: Album
-      AUTOMATIC_LIDARR_IMPORT: true
-      DELETE_ERRORED_DOWNLOADS: true
-      DELETE_FAILED_IMPORTS: true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /home/docker/soulmate/config:/config
-      - ${VOL1}/Library/Soulseek/downloads:/downloads
      
 
 networks:
