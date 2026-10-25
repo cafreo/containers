@@ -107,7 +107,7 @@ services:
     image: ghcr.io/fccview/cronmaster:${VERSION_CRONMASTER}
     container_name: cronmaster
     restart: always
-    user: 0:0
+    user: root
     pid: host
     privileged: true
     init: true
@@ -118,11 +118,14 @@ services:
       AUTH_PASSWORD: ${ENV_CRONMASTER_AUTH_PASSWORD}
       HOST_CRONTAB_USER: ${ENV_CRONMASTER_HOST_CRONTAB_USER}
       DOCKER_HOST: tcp://dockerproxy:2375
+      DISABLE_DISK_STATS: true
+      HOST_DATA_DIR: /home/docker/cronmaster/data
+      HOST_SCRIPTS_DIR: /home/docker/cronmaster/scripts
     volumes:
       - /etc/localtime:/etc/localtime:ro
       #- /var/run/docker.sock:/var/run/docker.sock
-      - /home/docker/cronmaster/scripts:/app/scripts
       - /home/docker/cronmaster/data:/app/data
+      - /home/docker/cronmaster/scripts:/app/scripts
       - /home/docker/cronmaster/snippets:/app/snippets
     networks:
       - net

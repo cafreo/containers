@@ -98,13 +98,13 @@ services:
     ports:
       - ${PORT1_KOITO}:4110
 
-  # AURRAL
+# AURRAL
   aurral:
     image: ghcr.io/lklynet/aurral:${VERSION_AURRAL}
     container_name: aurral
     restart: unless-stopped
     volumes:
-      - /home/docker/aurral/data}:/app/backend/data
+      - /home/docker/aurral/data:/app/backend/data
     networks:
       - net
       - public
