@@ -42,7 +42,7 @@ services:
 
 # ERSATZTV
   ersatztv:
-    image: jasongdove/ersatztv:${VERSION_ERSATZTV}
+    image: ersatztv/legacy:${VERSION_ERSATZTV}
     container_name: ersatztv
     restart: unless-stopped
     group_add:
