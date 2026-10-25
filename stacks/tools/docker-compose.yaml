@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     environment:
       CRON_MIN: 5, 25, 45
+      INTERNAL_HOST_ALLOWLIST: ${ENV_FRESHRSS_INTERNAL_HOST_ALLOWLIST}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /home/docker/freshrss/config:/config
@@ -28,20 +29,6 @@ services:
       - public
     ports:
       - ${PORT1_IT_TOOLS}:8080
-
-# WALLOS
-  wallos:
-    image: bellamy/wallos:${VERSION_WALLOS}
-    container_name: wallos
-    restart: unless-stopped
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /home/docker/wallos/db:/var/www/html/db
-      - /home/docker/wallos/logos:/var/www/html/images/uploads/logos
-    networks:
-      - net
-    ports:
-      - ${PORT1_WALLOS}:80/tcp
 
 # SQLITEBROWSER
   sqlitebrowser:
@@ -67,10 +54,6 @@ services:
     image: josh5/unmanic:${VERSION_UNMANIC}
     container_name: unmanic
     restart: unless-stopped
-    healthcheck:
-      test: "curl ifconfig.me  || exit 1"
-      interval: 1m
-      timeout: 10s
     environment:
       PUID: 1000
       PGID: 1000

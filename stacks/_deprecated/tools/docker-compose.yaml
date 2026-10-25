@@ -1,0 +1,20 @@
+services:
+
+  # WALLOS
+  wallos:
+    image: bellamy/wallos:${VERSION_WALLOS}
+    container_name: wallos
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/wallos/db:/var/www/html/db
+      - /home/docker/wallos/logos:/var/www/html/images/uploads/logos
+    networks:
+      - net
+    ports:
+      - ${PORT1_WALLOS}:80/tcp
+
+
+networks:
+  net:
+    driver: bridge
