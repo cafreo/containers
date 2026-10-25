@@ -1,26 +1,84 @@
 services:
 
 # MOZILLA SYNCSERVER
-  mozilla-syncserver:
-    image: mozilla/syncserver:${VERSION_SYNCSERVER}
+  mz-syncserver:
+    image: ghcr.io/mozilla-services/syncstorage-rs/syncserver-mysql:${VERSION_MZ_SYNCSERVER}
+    platform: linux/amd64
     container_name: mz-syncserver
     restart: unless-stopped
+    depends_on:
+      sync-db:
+        condition: service_healthy
+      tokenserver-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/__heartbeat__"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     environment:
-      SYNCSERVER_PUBLIC_URL: ${ENV_SYNCSERVER_PUBLIC_URL}
-      SYNCSERVER_SECRET: ${ENV_SYNCSERVER_SECRET}
-      SYNCSERVER_FORCE_WSGI_ENVIRON: true
-      SYNCSERVER_SQLURI: sqlite:////data/syncserver.db
-      SYNCSERVER_BATCH_UPLOAD_ENABLED: true
-      SYNCSERVER_DEBUG_ENABLED: true
-      PORT: 5000
+      SYNC_HOST: 0.0.0.0
+      SYNC_PORT: 8000
+      SYNC_MASTER_SECRET: ${ENV_MZ_SYNCSERVER_SYNC_MASTER_SECRET}
+      SYNC_SYNCSTORAGE__DATABASE_URL: mysql://${ENV_SYNC_DB_MYSQL_USER}:${ENV_SYNC_DB_MYSQL_PASSWORD}@sync-db:3306/syncstorage
+      SYNC_TOKENSERVER__DATABASE_URL: mysql://${ENV_SYNC_DB_MYSQL_USER}:${ENV_SYNC_DB_MYSQL_PASSWORD}@tokenserver-db:3306/tokenserver
+      SYNC_TOKENSERVER__ENABLED: true
+      SYNC_TOKENSERVER__RUN_MIGRATIONS: true
+      SYNC_TOKENSERVER__FXA_EMAIL_DOMAIN: api.accounts.firefox.com
+      SYNC_TOKENSERVER__FXA_OAUTH_SERVER_URL: https://oauth.accounts.firefox.com
+      SYNC_TOKENSERVER__INIT_NODE_URL: ${ENV_SYNC_TOKENSERVER__INIT_NODE_URL}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /home/docker/mz-syncserver/data:/data
     networks:
       - net
       - public
     ports:
-      - ${PORT1_SYNCSERVER}:5000
+      - ${PORT1_MZ_SYNCSERVER}:8000
+
+  sync-db:
+    image: mysql:${VERSION_MYSQL}
+    container_name: mz-syncserver-db
+    restart: unless-stopped
+    command: --explicit_defaults_for_timestamp
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin -h 127.0.0.1 -usync -psync ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_DATABASE: syncstorage
+      MYSQL_USER: ${ENV_SYNC_DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${ENV_SYNC_DB_MYSQL_PASSWORD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/mz-syncserver/sync-db/data:/var/lib/mysql
+    networks:
+      - net
+
+  tokenserver-db:
+    image: mysql:${VERSION_MYSQL}
+    container_name: mz-syncserver-token-db
+    restart: unless-stopped
+    command: --explicit_defaults_for_timestamp
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin -h 127.0.0.1 -usync -psync ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_DATABASE: tokenserver
+      MYSQL_USER: ${ENV_SYNC_DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${ENV_SYNC_DB_MYSQL_PASSWORD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /home/docker/mz-syncserver/token-db/data:/var/lib/mysql
+    networks:
+      - net
 
 # SYNCTHING
   syncthing:
